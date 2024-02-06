@@ -61,6 +61,8 @@ func (s *ArrayStore) Seed() {
 		},
 	}
 	s.users = append(s.users, users...)
+	s.userIdCounter = 2
+	s.wishlistIdCounter = 4
 }
 
 func (s *ArrayStore) GetUserById(id int) (User, error) {
