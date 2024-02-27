@@ -2,12 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"html"
 	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/toffernator/elf/store"
 )
@@ -17,28 +15,17 @@ var s *store.ArrayStore = &store.ArrayStore{}
 func main() {
 	s.Seed()
 
-	http.HandleFunc("/api/user/", user)
+	http.HandleFunc("GET /api/user/{id}", HttpGetUser)
+	http.HandleFunc("POST /api/user/", HttpPostUser)
 
 	println("Listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func user(w http.ResponseWriter, r *http.Request) {
-	slog.Info(r.Method)
-	if r.Method == http.MethodGet {
-		slog.Info("GET /api/user")
-		GETUser(w, r)
-	} else if r.Method == http.MethodPost {
-		slog.Info("POST /api/user")
-		POSTUser(w, r)
-	}
-}
+func HttpGetUser(w http.ResponseWriter, r *http.Request) {
+	slog.Info("GET /api/user")
 
-func GETUser(w http.ResponseWriter, r *http.Request) {
-	path := html.EscapeString(r.URL.Path)
-	parts := strings.Split(path, "/")[1:]
-
-	id, err := strconv.Atoi(parts[1])
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -60,7 +47,7 @@ type NewUserRequest struct {
 	LastName  string
 }
 
-func POSTUser(w http.ResponseWriter, r *http.Request) {
+func HttpPostUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var data []byte
