@@ -19,35 +19,22 @@ func init() {
 	gob.Register(auth.AuthenticatedUser{})
 }
 
-const (
-	OAUTH_STATE_LENGTH                    = 16
-	OAUTH_STATE_COOKIE_NAME               = "oauthstate"
-	AUTH0_SESSION_NAME                    = "auth0"
-	AUTH0_SESSION_USER_KEY         string = "user"
-	AUTH0_SESSION_ACCESS_TOKEN_KEY        = "access_token"
-)
-
-var (
-	OAUTH_STATE_COOKIE_EXPIRATION = time.Minute * 10
-	ErrNoUserInSession            = errors.New(fmt.Sprintf("There is no value in the session '%s' assocated with the key '%s'.", AUTH0_SESSION_NAME, AUTH0_SESSION_USER_KEY))
-)
-
-func Login(authenticator *auth.Authenticator, secureCookies *securecookie.SecureCookie) HTTPHandler {
+func Login(authenticator *auth.Authenticator, secureCookies *securecookie.SecureCookie, oauthStateLength int, oauthStateCookieName string) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		state, err := generateState(OAUTH_STATE_LENGTH)
+		state, err := generateState(oauthStateLength)
 		if err != nil {
 			return err
 		}
 
-		encodedStateValue, err := secureCookies.Encode(OAUTH_STATE_COOKIE_NAME, state)
+		encodedStateValue, err := secureCookies.Encode(oauthStateCookieName, state)
 		if err != nil {
 			return err
 		}
 		c := &http.Cookie{
-			Name:    OAUTH_STATE_COOKIE_NAME,
+			Name:    oauthStateCookieName,
 			Value:   encodedStateValue,
 			Path:    "/",
-			Expires: time.Now().Add(OAUTH_STATE_COOKIE_EXPIRATION),
+			Expires: time.Now().Add(time.Minute * 10),
 			// Secure:   true,
 			HttpOnly: true,
 		}
@@ -58,7 +45,7 @@ func Login(authenticator *auth.Authenticator, secureCookies *securecookie.Secure
 	}
 }
 
-func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users auth.AuthenticatedUserStore) HTTPHandler {
+func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users auth.AuthenticatedUserStore, oauthStateCookieName string, sessionCookieName string, sessionCookieUserKey string, sessionCookieAccessTokenKey string) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		queryParameterErrors := map[string]string{}
 		if !r.URL.Query().Has("state") {
@@ -73,16 +60,16 @@ func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secu
 		state := r.URL.Query().Get("state")
 		code := r.URL.Query().Get("code")
 
-		expectedStateCookie, err := r.Cookie(OAUTH_STATE_COOKIE_NAME)
+		expectedStateCookie, err := r.Cookie(oauthStateCookieName)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s not present because: %w", oauthStateCookieName, err)
 		}
 		if err = expectedStateCookie.Valid(); err != nil {
 			return err
 		}
 
 		var expectedState string
-		if err = secureCookies.Decode(OAUTH_STATE_COOKIE_NAME, expectedStateCookie.Value, &expectedState); err != nil {
+		if err = secureCookies.Decode(oauthStateCookieName, expectedStateCookie.Value, &expectedState); err != nil {
 			return err
 		}
 		if state != expectedState {
@@ -109,9 +96,9 @@ func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secu
 			return err
 		}
 
-		session, _ := store.Get(r, AUTH0_SESSION_NAME)
-		session.Values[AUTH0_SESSION_ACCESS_TOKEN_KEY] = token.AccessToken
-		session.Values[AUTH0_SESSION_USER_KEY] = *user
+		session, _ := store.Get(r, sessionCookieName)
+		session.Values[sessionCookieAccessTokenKey] = token.AccessToken
+		session.Values[sessionCookieUserKey] = *user
 		if err = session.Save(r, w); err != nil {
 			return err
 		}
@@ -129,17 +116,17 @@ func generateState(n int) (string, error) {
 	return base64.StdEncoding.EncodeToString(data), nil
 }
 
-func Logout(a *auth.Authenticator) HTTPHandler {
+func Logout(a *auth.Authenticator, callbackUrl string) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		http.Redirect(w, r, a.LogoutUrl(), http.StatusMovedPermanently)
+		http.Redirect(w, r, a.LogoutUrl(callbackUrl), http.StatusMovedPermanently)
 		return nil
 	}
 }
 
-func LogoutCallback(store sessions.Store) HTTPHandler {
+func LogoutCallback(store sessions.Store, sessionCookieName string, sessionCookieUserKey string) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		session, _ := store.Get(r, AUTH0_SESSION_NAME)
-		delete(session.Values, AUTH0_SESSION_USER_KEY)
+		session, _ := store.Get(r, sessionCookieName)
+		delete(session.Values, sessionCookieUserKey)
 		err := session.Save(r, w)
 		if err != nil {
 			return err

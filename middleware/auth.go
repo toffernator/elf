@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"elf/internal/auth"
-	"elf/internal/handler"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -17,14 +16,14 @@ type contextKey int
 
 const AuthenticatedUserKey contextKey = 0
 
-func AddUserToContext(store sessions.Store, sessionCookieName string) MiddlewareFunc {
+func AddUserToContext(store sessions.Store, sessionCookieName string, sessionCookieUserKey string) MiddlewareFunc {
 	return func(w http.ResponseWriter, r *http.Request, next http.Handler) error {
 		session, err := store.Get(r, sessionCookieName)
 		if err != nil {
 			return err
 		}
 
-		user, ok := session.Values[handler.AUTH0_SESSION_USER_KEY].(auth.AuthenticatedUser)
+		user, ok := session.Values[sessionCookieUserKey].(auth.AuthenticatedUser)
 		if !ok {
 			return errors.New("Cannot cast the user in the session to an auth.AuthenticatedUser")
 		}

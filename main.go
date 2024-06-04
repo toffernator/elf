@@ -4,13 +4,11 @@ import (
 	"context"
 	"elf/handlers"
 	"elf/internal/auth"
-	"elf/internal/handler"
-	"elf/internal/store"
+	"elf/internal/config"
 	"elf/middleware"
 	"log"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -20,13 +18,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var wishlists handler.WishlistCreatorReader = &store.ArrayWishlist{}
 var users auth.AuthenticatedUserStore = &auth.ArrayAuthenticatedUserStore{}
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
+
+	cfg := config.MustLoadConfig()
 
 	var sessionStore = sessions.NewCookieStore([]byte(os.Getenv("GORILLA_SESSIONS_SECRET")))
 
@@ -38,12 +37,7 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{AddSource: true}))
 	slog.SetDefault(logger)
 
-	auth0Issuer := url.URL{
-		Scheme: "https",
-		Host:   os.Getenv(auth.AUTH0_DOMAIN),
-		Path:   "/",
-	}
-	authenticator, err := auth.NewAuthenticator(context.Background(), auth0Issuer)
+	authenticator, err := auth.NewAuthenticator(context.Background(), cfg.Auth0)
 	if err != nil {
 		slog.Error("The authenticator failed initialization", "err", err.Error())
 		return
@@ -53,19 +47,19 @@ func main() {
 
 	router.Use(chiMiddleware.Logger)
 	router.Use(chiMiddleware.Recoverer)
-	router.Use(middleware.Make(middleware.AddUserToContext(sessionStore, handler.AUTH0_SESSION_NAME)))
+	router.Use(middleware.Make(middleware.AddUserToContext(sessionStore, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey)))
 
 	router.Handle("/*", public())
 	router.Get("/", handlers.Make(handlers.HandleHome))
-	router.Get("/login", handlers.Make(handlers.Login(authenticator, secureCookies)))
-	router.Get("/login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users)))
-	router.Get("/logout", handlers.Make(handlers.Logout(authenticator)))
-	router.Get("/logout/callback", handlers.Make(handlers.LogoutCallback(sessionStore)))
+	router.Get("/login", handlers.Make(handlers.Login(authenticator, secureCookies, cfg.OAuth.StateLength, cfg.OAuth.StateCookieName)))
+	router.Get("/login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users, cfg.OAuth.StateCookieName, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey, cfg.Auth0.SessionCookieAccessTokenKey)))
+	router.Get("/logout", handlers.Make(handlers.Logout(authenticator, cfg.Auth0.LogoutCallbackUrl)))
+	router.Get("/logout/callback", handlers.Make(handlers.LogoutCallback(sessionStore, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey)))
 
 	router.Get("/ping", handlers.Make(handlers.Ping))
 	router.Get("/teapot", handlers.Make(handlers.IAmATeapot))
 
-	listenAddr := os.Getenv("LISTEN_ADDR")
+	listenAddr := cfg.ListenAddr
 	slog.Info("HTTP server started", "listenAddr", listenAddr)
 	http.ListenAndServe(listenAddr, router)
 }

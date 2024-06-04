@@ -2,9 +2,9 @@ package auth
 
 import (
 	"context"
+	"elf/internal/config"
 	"errors"
 	"net/url"
-	"os"
 
 	"github.com/coreos/go-oidc"
 	"golang.org/x/oauth2"
@@ -22,25 +22,32 @@ var (
 type Authenticator struct {
 	Provider *oidc.Provider
 	Config   oauth2.Config
+	domain   string
 }
 
 // NewNewAuthenticator returns an Authenticator with a the default Auth0 OIDC
 // provider, and the default Auth0 OAuth configuration for Elf.
-func NewAuthenticator(ctx context.Context, auth0Issuer url.URL) (auth *Authenticator, err error) {
+func NewAuthenticator(ctx context.Context, cfg config.Auth0) (auth *Authenticator, err error) {
+	auth0Issuer := url.URL{
+		Scheme: "https",
+		Host:   cfg.Domain,
+		Path:   "/",
+	}
+
 	provider, err := oidc.NewProvider(ctx, auth0Issuer.String())
 	if err != nil {
 		return nil, err
 	}
 
 	conf := oauth2.Config{
-		ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
-		ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("AUTH0_CALLBACK_URL"),
+		ClientID:     cfg.ClientId,
+		ClientSecret: cfg.ClientSecret,
+		RedirectURL:  cfg.LoginCallbackUrl,
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID, "profile"},
 	}
 
-	auth = &Authenticator{Provider: provider, Config: conf}
+	auth = &Authenticator{Provider: provider, Config: conf, domain: cfg.Domain}
 	return auth, nil
 }
 
@@ -59,15 +66,15 @@ func (a *Authenticator) VerifyIDToken(ctx context.Context, token *oauth2.Token) 
 	return a.Provider.Verifier(oidcConfig).Verify(ctx, rawIDToken)
 }
 
-func (a *Authenticator) LogoutUrl() string {
+func (a *Authenticator) LogoutUrl(returnTo string) string {
 
 	q := url.Values{}
-	q.Add("client_id", os.Getenv(AUTH0_CLIENT_ID))
-	q.Add("returnTo", "http://127.0.0.1:7331/logout/callback")
+	q.Add("client_id", a.Config.ClientID)
+	q.Add("returnTo", returnTo)
 
 	u := url.URL{
 		Scheme:   "https",
-		Host:     os.Getenv(AUTH0_DOMAIN),
+		Host:     a.domain,
 		Path:     "/v2/logout",
 		RawQuery: q.Encode(),
 	}
