@@ -11,24 +11,11 @@ import (
 )
 
 const (
-	AUTH0_DOMAIN        = "AUTH0_DOMAIN"
-	AUTH0_CLIENT_ID     = ""
-	AUTH0_CLIENT_SECRET = "AUTH0_CLIENT_SECRET"
-	AUTH0_CALLBACK_URL  = "AUTH0_CALLBACK_URL"
+	AUTH0_DOMAIN    = "AUTH0_DOMAIN"
+	AUTH0_CLIENT_ID = ""
 )
 
 var (
-	Auth0Domain       = os.Getenv(AUTH0_DOMAIN)
-	Auth0ClientId     = os.Getenv(AUTH0_CLIENT_ID)
-	Auth0ClientSecret = os.Getenv(AUTH0_CLIENT_SECRET)
-	Auth0CallbackUrl  = os.Getenv(AUTH0_CALLBACK_URL)
-
-	Auth0Issuer url.URL = url.URL{
-		Scheme: "https",
-		Host:   Auth0Domain,
-		Path:   "/",
-	}
-
 	ErrNoIdTokenField = errors.New("no id_token field in oauth2 token")
 )
 

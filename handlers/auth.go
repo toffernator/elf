@@ -33,113 +33,92 @@ var (
 	ErrNoUserInSession            = errors.New(fmt.Sprintf("There is no value in the session '%s' assocated with the key '%s'.", AUTH0_SESSION_NAME, AUTH0_SESSION_USER_KEY))
 )
 
-func Login(authenticator *auth.Authenticator, secureCookies *securecookie.SecureCookie) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Login(authenticator *auth.Authenticator, secureCookies *securecookie.SecureCookie) HTTPHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
 		state, err := generateState(OAUTH_STATE_LENGTH)
 		if err != nil {
-			slog.Error("Failed to generate state when logging in", "err", err.Error())
-			http.Error(w, "We did an oopsie!", http.StatusInternalServerError)
-			return
+			return err
 		}
 
-		if encoded, err := secureCookies.Encode(OAUTH_STATE_COOKIE_NAME, state); err == nil {
-			cookie := &http.Cookie{
-				Name:    OAUTH_STATE_COOKIE_NAME,
-				Value:   encoded,
-				Path:    "/",
-				Expires: time.Now().Add(OAUTH_STATE_COOKIE_EXPIRATION),
-				// Secure:   true,
-				HttpOnly: true,
-			}
-			http.SetCookie(w, cookie)
-		} else {
-			slog.Error("Failed to encode secure cookie", "err", err.Error())
-			http.Error(w, "We did an oopsie!", http.StatusInternalServerError)
-			return
+		encodedStateValue, err := secureCookies.Encode(OAUTH_STATE_COOKIE_NAME, state)
+		if err != nil {
+			return err
 		}
+		c := &http.Cookie{
+			Name:    OAUTH_STATE_COOKIE_NAME,
+			Value:   encodedStateValue,
+			Path:    "/",
+			Expires: time.Now().Add(OAUTH_STATE_COOKIE_EXPIRATION),
+			// Secure:   true,
+			HttpOnly: true,
+		}
+		http.SetCookie(w, c)
 
 		http.Redirect(w, r, authenticator.Config.AuthCodeURL(state), http.StatusTemporaryRedirect)
+		return nil
 	}
 }
 
-func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users auth.AuthenticatedUserStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users auth.AuthenticatedUserStore) HTTPHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		queryParameterErrors := map[string]string{}
 		if !r.URL.Query().Has("state") {
-			slog.Error("The 'state' query parameter is not present.", "url", r.URL.String())
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+			queryParameterErrors["state"] = ""
+		}
+		if !r.URL.Query().Has("code") {
+			queryParameterErrors["code"] = ""
+		}
+		if len(queryParameterErrors) != 0 {
+			return InvalidQueryParameters(queryParameterErrors)
 		}
 		state := r.URL.Query().Get("state")
+		code := r.URL.Query().Get("code")
 
 		expectedStateCookie, err := r.Cookie(OAUTH_STATE_COOKIE_NAME)
 		if err != nil {
-			slog.Error("The 'state' cookie is not set.", "err", err.Error())
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+			return err
 		}
 		if err = expectedStateCookie.Valid(); err != nil {
-			slog.Error("The 'state' cookie is set, however, it's invalid.", "err", err.Error())
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+			return err
 		}
+
 		var expectedState string
 		if err = secureCookies.Decode(OAUTH_STATE_COOKIE_NAME, expectedStateCookie.Value, &expectedState); err != nil {
-			slog.Error("Failed to decode secure cookie", "err", err.Error())
-			http.Error(w, "We did an oopsie!", http.StatusInternalServerError)
-			return
+			return err
 		}
-
 		if state != expectedState {
-			slog.Error("The provided state does not match the expected state.")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+			return errors.New("The provided state does not match the expected state.")
 		}
-
-		if !r.URL.Query().Has("code") {
-			slog.Error("The 'code' query parameter is not present.", "url", r.URL.String())
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		code := r.URL.Query().Get("code")
 
 		token, err := authenticator.Config.Exchange(r.Context(), code)
 		if err != nil {
-			slog.Error("The authorization code failed to be exchanged for a token.", "err", err.Error())
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+			return err
 		}
 
 		idToken, err := authenticator.VerifyIDToken(r.Context(), token)
 		if err != nil {
-			slog.Error("The ID token failed verification", "err", err.Error())
-			http.Error(w, "We did an oopsie!", http.StatusInternalServerError)
-			return
+			return err
 		}
 
 		var profile auth.Profile
 		if err := idToken.Claims(&profile); err != nil {
-			slog.Error("The JSON of the ID token's claims could not be unmarshalled.", "err", err.Error())
-			http.Error(w, "We did an oopsie!", http.StatusInternalServerError)
-			return
+			return err
 		}
 
 		user, err := users.Create(profile)
 		if errors.Is(err, auth.ErrDuplicateSub) {
-			slog.Error("An authenticated user with that 'Sub' already exists", "Profile", profile)
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+			return err
 		}
 
 		session, _ := store.Get(r, AUTH0_SESSION_NAME)
 		session.Values[AUTH0_SESSION_ACCESS_TOKEN_KEY] = token.AccessToken
 		session.Values[AUTH0_SESSION_USER_KEY] = *user
 		if err = session.Save(r, w); err != nil {
-			slog.Error("The session store failed to save.", "err", err.Error())
-			http.Error(w, "We did an oopsie!", http.StatusInternalServerError)
-			return
+			return err
 		}
 
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return nil
 	}
 }
 

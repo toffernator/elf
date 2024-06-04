@@ -6,6 +6,7 @@ import (
 	"elf/internal/auth"
 	"elf/internal/handler"
 	"elf/internal/store"
+	"elf/middleware"
 	"log"
 	"log/slog"
 	"net/http"
@@ -13,7 +14,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -50,13 +51,14 @@ func main() {
 
 	router := chi.NewMux()
 
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
+	router.Use(chiMiddleware.Logger)
+	router.Use(chiMiddleware.Recoverer)
+	router.Use(middleware.Make(middleware.AddUserToContext(sessionStore, handler.AUTH0_SESSION_NAME)))
 
 	router.Handle("/*", public())
 	router.Get("/", handlers.Make(handlers.HandleHome))
-	router.Get("/login", handlers.Login(authenticator, secureCookies))
-	router.HandleFunc("GET /login/callback", handlers.LoginCallback(authenticator, sessionStore, secureCookies, users))
+	router.Get("/login", handlers.Make(handlers.Login(authenticator, secureCookies)))
+	router.HandleFunc("GET /login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users)))
 	router.HandleFunc("GET /logout", handlers.Logout(authenticator, sessionStore))
 
 	router.Get("/ping", handlers.Make(handlers.Ping))
