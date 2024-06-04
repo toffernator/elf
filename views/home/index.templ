@@ -2,6 +2,7 @@ package home
 
 import (
 	"elf/views/layouts"
+	"elf/views/components"
 	"elf/internal/core"
 )
 
@@ -10,6 +11,14 @@ templ wishlistComponent(w core.Wishlist) {
 		<h2 class="text-xl">{ w.Name }</h2>
 		<img src={ w.Image }/>
 	</span>
+}
+
+templ imgComponent(src string) {
+	<img src={ src }/>
+}
+
+templ bootstrapIconComponent(iconFontClass string) {
+	<i class={ iconFontClass + " text-8xl" }></i>
 }
 
 templ addWishlistComponent() {
@@ -28,9 +37,17 @@ templ Index(ws []core.Wishlist) {
 	@layouts.Base() {
 		<div class="flex flex-wrap gap-2 items-stretch">
 			for _, w := range ws {
-				@wishlistComponent(w)
+				@components.Card(components.CardModel{
+					Title: w.Name,
+					Link:  "",
+					Cover: imgComponent(w.Image),
+				})
 			}
-			@addWishlistComponent()
+			@components.Card(components.CardModel{
+				Title: "Add a Wishlist",
+				Link:  "",
+				Cover: bootstrapIconComponent("bi bi-plus-lg"),
+			})
 		</div>
 	}
 }

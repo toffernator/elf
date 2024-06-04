@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"elf/internal/auth"
+	"elf/internal/core"
 	"github.com/gorilla/sessions"
-	"github.com/toffernator/elf/auth"
-	"github.com/toffernator/elf/internal/core"
 )
 
 type WishlistCreator interface {

@@ -1,0 +1,14 @@
+package components
+
+type CardModel struct {
+	Title string
+	Cover templ.Component
+	Link  string
+}
+
+templ Card(m CardModel) {
+	<span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
+		<h2 class="text-xl">{ m.Title }</h2>
+		@m.Cover
+	</span>
+}

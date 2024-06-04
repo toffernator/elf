@@ -11,9 +11,9 @@ import (
 	"net/http"
 	"time"
 
+	"elf/internal/auth"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	"github.com/toffernator/elf/auth"
 )
 
 func init() {

@@ -8,9 +8,9 @@ import (
 	"os"
 	"text/template"
 
+	"elf/internal/auth"
+	"elf/internal/core"
 	"github.com/gorilla/sessions"
-	"github.com/toffernator/elf/auth"
-	"github.com/toffernator/elf/internal/core"
 )
 
 func Root(store sessions.Store) http.HandlerFunc {
@@ -69,17 +69,5 @@ func Root(store sessions.Store) http.HandlerFunc {
 
 		t, err := template.New("webpage").Parse(string(tpl))
 		t.Execute(w, data)
-	}
-}
-
-func Ping() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "Pong!")
-	}
-}
-
-func IAmATeapot() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "I am a teapot!", http.StatusTeapot)
 	}
 }

@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"elf/internal/auth"
 	"github.com/gorilla/sessions"
-	"github.com/toffernator/elf/auth"
 )
 
 func EnsureAuthenticated(next http.Handler, store sessions.Store) http.HandlerFunc {

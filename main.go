@@ -24,6 +24,8 @@ func main() {
 	router.Handle("/*", public())
 	router.Get("/", handlers.Make(handlers.HandleHome))
 	router.Get("/login", handlers.Make(handlers.HandleLoginIndex))
+	router.Get("/ping", handlers.Make(handlers.Ping))
+	router.Get("/teapot", handlers.Make(handlers.IAmATeapot))
 
 	listenAddr := os.Getenv("LISTEN_ADDR")
 	slog.Info("HTTP server started", "listenAddr", listenAddr)

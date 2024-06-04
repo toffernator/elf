@@ -1,0 +1,12 @@
+package wishlist
+
+import (
+	"elf/views/layouts"
+	"elf/internal/core"
+)
+
+templ Wishlist(w core.Wishlist) {
+	@layouts.Base() {
+		<h1>{ w.Name }</h1>
+	}
+}

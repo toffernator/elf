@@ -1,6 +1,6 @@
 package store
 
-import "github.com/toffernator/elf/internal/core"
+import "elf/internal/core"
 
 type ArrayWishlist struct {
 	wishlistIdCounter int

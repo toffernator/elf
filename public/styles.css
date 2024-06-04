@@ -588,6 +588,10 @@ video {
   }
 }
 
+.collapse {
+  visibility: collapse;
+}
+
 .static {
   position: static;
 }
@@ -842,8 +846,24 @@ video {
   transition-duration: 200ms;
 }
 
+.\[ai\:ai\+size\] {
+  ai: ai+size;
+}
+
+.\[alo\:ahi\] {
+  alo: ahi;
+}
+
 .\[b\:b\+1\] {
   b: b+1;
+}
+
+.\[bj\:bj\+size\] {
+  bj: bj+size;
+}
+
+.\[blo\:bhi\] {
+  blo: bhi;
 }
 
 .\[contentEnd\:packetEnd\] {
@@ -862,12 +882,32 @@ video {
   i-10: i+10;
 }
 
+.\[i1\:i1\] {
+  i1: i1;
+}
+
+.\[i1\:i2\] {
+  i1: i2;
+}
+
+.\[i\:ai\] {
+  i: ai;
+}
+
 .\[i\:i\+1\] {
   i: i+1;
 }
 
 .\[i\:i\+8\] {
   i: i+8;
+}
+
+.\[i\:i\+k\] {
+  i: i+k;
+}
+
+.\[i\:i\+n\] {
+  i: i+n;
 }
 
 .\[i\:i\+step\] {
@@ -878,8 +918,32 @@ video {
   i: j;
 }
 
+.\[j1\:j2\] {
+  j1: j2;
+}
+
+.\[j\:bj\] {
+  j: bj;
+}
+
+.\[j\:j\+k\] {
+  j: j+k;
+}
+
+.\[j\:j\+n\] {
+  j: j+n;
+}
+
 .\[k\:z\] {
   k: z;
+}
+
+.\[nil\:\<nil\>\] {
+  nil: <nil>;
+}
+
+.\[one\:1\] {
+  one: 1;
 }
 
 .\[optionStart\:i\] {
