@@ -39,8 +39,8 @@ type Authenticator struct {
 
 // NewNewAuthenticator returns an Authenticator with a the default Auth0 OIDC
 // provider, and the default Auth0 OAuth configuration for Elf.
-func NewAuthenticator(ctx context.Context) (auth *Authenticator, err error) {
-	provider, err := oidc.NewProvider(ctx, Auth0Issuer.String())
+func NewAuthenticator(ctx context.Context, auth0Issuer url.URL) (auth *Authenticator, err error) {
+	provider, err := oidc.NewProvider(ctx, auth0Issuer.String())
 	if err != nil {
 		return nil, err
 	}
