@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 )
 
@@ -16,6 +17,9 @@ func main() {
 		log.Fatal(err)
 	}
 	router := chi.NewMux()
+
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 
 	router.Handle("/*", public())
 	router.Get("/", handlers.Make(handlers.HandleHome))
