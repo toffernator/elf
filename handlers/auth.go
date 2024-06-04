@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"time"
 
@@ -130,13 +129,21 @@ func generateState(n int) (string, error) {
 	return base64.StdEncoding.EncodeToString(data), nil
 }
 
-func Logout(a *auth.Authenticator, store sessions.Store) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		session, _ := store.Get(r, AUTH0_SESSION_NAME)
-		slog.Info("Pre delete from session.Values", "session.Values", session.Values)
-		delete(session.Values, AUTH0_SESSION_USER_KEY)
-		slog.Info("Pre delete from session.Values", "session.Values", session.Values)
-
+func Logout(a *auth.Authenticator) HTTPHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, a.LogoutUrl(), http.StatusMovedPermanently)
+		return nil
+	}
+}
+
+func LogoutCallback(store sessions.Store) HTTPHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		session, _ := store.Get(r, AUTH0_SESSION_NAME)
+		delete(session.Values, AUTH0_SESSION_USER_KEY)
+		err := session.Save(r, w)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 }

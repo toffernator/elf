@@ -58,8 +58,9 @@ func main() {
 	router.Handle("/*", public())
 	router.Get("/", handlers.Make(handlers.HandleHome))
 	router.Get("/login", handlers.Make(handlers.Login(authenticator, secureCookies)))
-	router.HandleFunc("GET /login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users)))
-	router.HandleFunc("GET /logout", handlers.Logout(authenticator, sessionStore))
+	router.Get("/login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users)))
+	router.Get("/logout", handlers.Make(handlers.Logout(authenticator)))
+	router.Get("/logout/callback", handlers.Make(handlers.LogoutCallback(sessionStore)))
 
 	router.Get("/ping", handlers.Make(handlers.Ping))
 	router.Get("/teapot", handlers.Make(handlers.IAmATeapot))

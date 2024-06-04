@@ -49,6 +49,7 @@ func Make(m MiddlewareFunc) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if err := m(w, r, next); err != nil {
 				slog.Error("Middleware handler error", "err", err, "path", r.URL.Path)
+				next.ServeHTTP(w, r)
 			}
 		})
 	}

@@ -63,7 +63,7 @@ func (a *Authenticator) LogoutUrl() string {
 
 	q := url.Values{}
 	q.Add("client_id", os.Getenv(AUTH0_CLIENT_ID))
-	// q.Add("returnTo", "http://localhost:8080/")
+	q.Add("returnTo", "http://127.0.0.1:7331/logout/callback")
 
 	u := url.URL{
 		Scheme:   "https",
