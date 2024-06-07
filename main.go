@@ -46,6 +46,11 @@ func main() {
 
 	wishlists := store.NewArrayWishlist()
 
+	_, err = store.NewSqliteStore(cfg.Db)
+	if err != nil {
+		slog.Error("The database failed initialization", "err", err.Error())
+	}
+
 	router := chi.NewMux()
 
 	router.Use(chiMiddleware.Logger)
