@@ -1,0 +1,13 @@
+package components
+
+templ Modal() {
+<div id="modal" class="absolute bg-gray-600/[0.3] top-0 left-0 h-full w-full flex items-center justify-center">
+  <div class="w-5/12 p-2 bg-white">
+    <h2 class="text-3xl">New Wishlist</h2>
+    <form class="flex flex-col gap-2" hx-post="/ping" hx-target="#wishlists" hx-swap="beforeend">
+      <input type=" text" placeholder="Name..." class="border border-gray-200" />
+      <button type="submit" class="bg-blue-500 text-white" _="on click remove #modal end">Create</button>
+    </form>
+  </div>
+</div>
+}

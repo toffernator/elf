@@ -50,11 +50,13 @@ func main() {
 	router.Use(middleware.Make(middleware.AddUserToContext(sessionStore, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey)))
 
 	router.Handle("/*", public())
-	router.Get("/", handlers.Make(handlers.HandleHome))
+	router.Get("/home", handlers.Make(handlers.HandleHome))
 	router.Get("/login", handlers.Make(handlers.Login(authenticator, secureCookies, cfg.OAuth.StateLength, cfg.OAuth.StateCookieName)))
 	router.Get("/login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users, cfg.OAuth.StateCookieName, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey, cfg.Auth0.SessionCookieAccessTokenKey)))
 	router.Get("/logout", handlers.Make(handlers.Logout(authenticator, cfg.Auth0.LogoutCallbackUrl)))
 	router.Get("/logout/callback", handlers.Make(handlers.LogoutCallback(sessionStore, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey)))
+
+	router.Post("/wishlist", handlers.Make(handlers.Ping))
 
 	router.Get("/ping", handlers.Make(handlers.Ping))
 	router.Get("/teapot", handlers.Make(handlers.IAmATeapot))

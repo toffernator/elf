@@ -2,11 +2,22 @@ package handlers
 
 import (
 	"elf/internal/core"
+	"elf/views/components"
 	"elf/views/home"
+	"errors"
 	"net/http"
 )
 
 func HandleHome(w http.ResponseWriter, r *http.Request) error {
+	if openModalExists := r.URL.Query().Has("openModal"); openModalExists {
+		switch r.URL.Query().Get("openModal") {
+		case "newWishlist":
+			return Render(w, r, components.Modal())
+		default:
+			return errors.New("bad request")
+		}
+	}
+
 	ws := []core.Wishlist{
 		{
 			Id:       1,

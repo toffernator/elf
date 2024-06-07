@@ -1,53 +1,47 @@
 package home
 
 import (
-	"elf/views/layouts"
-	"elf/views/components"
-	"elf/internal/core"
+"elf/views/layouts"
+"elf/internal/core"
 )
 
 templ wishlistComponent(w core.Wishlist) {
-	<span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
-		<h2 class="text-xl">{ w.Name }</h2>
-		<img src={ w.Image }/>
-	</span>
+<span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
+  <h2 class="text-xl">{ w.Name }</h2>
+  <img src={ w.Image } />
+</span>
 }
 
 templ imgComponent(src string) {
-	<img src={ src }/>
+<img src={ src } />
 }
 
 templ bootstrapIconComponent(iconFontClass string) {
-	<i class={ iconFontClass + " text-8xl" }></i>
+<i class={ iconFontClass + " text-8xl" }></i>
 }
 
 templ addWishlistComponent() {
-	<a
-		hx-get="/wishlist-add-modal"
-		hx-target="main"
-		hx-swap="beforeend"
-		class="flex flex-col items-center justify-stretch w-36 border border-gray-200"
-	>
-		<h2 class="text-xl">Add a Wishlist</h2>
-		<i class="bi bi-plus-lg text-8xl"></i>
-	</a>
+<a hx-get="/wishlist-add-modal" hx-target="main" hx-swap="beforeend"
+  class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
+  <h2 class="text-xl">Add a Wishlist</h2>
+  <i class="bi bi-plus-lg text-8xl"></i>
+</a>
 }
 
 templ Index(ws []core.Wishlist) {
-	@layouts.Base() {
-		<div class="flex flex-wrap gap-2 items-stretch">
-			for _, w := range ws {
-				@components.Card(components.CardModel{
-					Title: w.Name,
-					Link:  "",
-					Cover: imgComponent(w.Image),
-				})
-			}
-			@components.Card(components.CardModel{
-				Title: "Add a Wishlist",
-				Link:  "",
-				Cover: bootstrapIconComponent("bi bi-plus-lg"),
-			})
-		</div>
-	}
+@layouts.Base() {
+<div id="wishlists" class="flex flex-wrap gap-2 items-stretch">
+  for _, w := range ws {
+  <span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
+    <h2 class="text">{ w.Name }</h2>
+    <img src={ w.Image } />
+  </span>
+  }
+  <span class="flex flex-col items-center justify-stretch w-36 border border-gray-200" hx-get="?openModal=newWishlist"
+    hx-target="main" hx-swap="beforeend">
+    <h2 class="">Add a Wishlist</h2>
+    @bootstrapIconComponent("bi bi-plus-lg")
+  </span>
+</div>
+}
 }
