@@ -1,12 +1,12 @@
 package wishlist
 
 import (
-	"elf/views/layouts"
-	"elf/internal/core"
+"elf/internal/core"
 )
 
 templ Wishlist(w core.Wishlist) {
-	@layouts.Base() {
-		<h1>{ w.Name }</h1>
-	}
+<span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
+  <h2 class="text">{ w.Name }</h2>
+  <img src={ w.Image } />
+</span>
 }

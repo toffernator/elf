@@ -11,7 +11,7 @@ type ApiError struct {
 }
 
 func (err ApiError) Error() string {
-	return fmt.Sprintf("Api error: %d", err.StatusCode)
+	return fmt.Sprintf("%d: %s", err.StatusCode, err.Msg)
 }
 
 func InvalidQueryParameters(errors map[string]string) ApiError {

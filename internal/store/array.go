@@ -7,6 +7,13 @@ type ArrayWishlist struct {
 	wishlists         []core.Wishlist
 }
 
+func NewArrayWishlist() (s *ArrayWishlist) {
+	// TODO: Fine tune the value 5
+	s = &ArrayWishlist{wishlistIdCounter: 0, wishlists: make([]core.Wishlist, 5)}
+	s.Seed()
+	return
+}
+
 func (s *ArrayWishlist) Seed() {
 	products := []core.Product{
 		{Name: "iPad", Url: "www.example.com", Price: 100, Currency: "eur"},
@@ -22,9 +29,10 @@ func (s *ArrayWishlist) Seed() {
 	s.wishlists = wishlists
 }
 
-func (s *ArrayWishlist) Create(ownerId int, products ...core.Product) core.Wishlist {
+func (s *ArrayWishlist) Create(name string, ownerId int, products ...core.Product) core.Wishlist {
 	w := core.Wishlist{
 		Id:       s.nextUserId(),
+		Name:     name,
 		OwnerId:  ownerId,
 		Products: products,
 	}

@@ -5,6 +5,7 @@ import (
 	"elf/handlers"
 	"elf/internal/auth"
 	"elf/internal/config"
+	"elf/internal/store"
 	"elf/middleware"
 	"log"
 	"log/slog"
@@ -43,6 +44,8 @@ func main() {
 		return
 	}
 
+	wishlists := store.NewArrayWishlist()
+
 	router := chi.NewMux()
 
 	router.Use(chiMiddleware.Logger)
@@ -56,7 +59,7 @@ func main() {
 	router.Get("/logout", handlers.Make(handlers.Logout(authenticator, cfg.Auth0.LogoutCallbackUrl)))
 	router.Get("/logout/callback", handlers.Make(handlers.LogoutCallback(sessionStore, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey)))
 
-	router.Post("/wishlist", handlers.Make(handlers.Ping))
+	router.Post("/wishlist", handlers.Make(handlers.NewWishlist(wishlists)))
 
 	router.Get("/ping", handlers.Make(handlers.Ping))
 	router.Get("/teapot", handlers.Make(handlers.IAmATeapot))
