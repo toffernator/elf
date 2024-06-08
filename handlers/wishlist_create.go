@@ -10,7 +10,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var validate *validator.Validate = validator.New(validator.WithRequiredStructEnabled())
 var decoder *form.Decoder = form.NewDecoder()
 
 func NewWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
@@ -87,7 +86,7 @@ func (r *CreateWishlistRequest) validate() error {
 			}
 		}
 		if len(es) > 0 {
-			return ValidationError(es)
+			return ValidationErrors(es)
 		}
 	}
 	return nil

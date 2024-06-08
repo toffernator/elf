@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"elf/internal/config"
-	"elf/internal/core"
 	"net/http"
 	"strconv"
 )
@@ -12,10 +11,10 @@ func PatchWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 		req := NewUpdateWishlistRequst(r)
 		req.Init()
 
-		_, err := srvcs.WishlistUpdater.AddProduct(req.R.Context(), req.Data.WishlistId, req.Data.Product)
-		if err != nil {
-			return err
-		}
+		// _, err := srvcs.WishlistUpdater.AddProduct(req.R.Context(), req.Data.WishlistId, req.Data.Product)
+		// if err != nil {
+		//return err
+		//}
 
 		return nil
 	}
@@ -56,7 +55,7 @@ func (r *UpdateWishlistRequest) Validate() error {
 	es := make(map[Field]FieldError, 0)
 
 	idStr := r.R.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	// id, err := strconv.Atoi(idStr)
 	if err != nil {
 		es["id"] = FieldError{
 			Location: PATH_PARAM_LOCATION,
@@ -106,15 +105,8 @@ func (r *UpdateWishlistRequest) Validate() error {
 	}
 
 	if len(es) > 0 {
-		return ValidationError(es)
+		return ValidationErrors(es)
 	}
 
-	r.Data.WishlistId = id
-	r.Data.Product = {
-		Name:     name,
-		Url:      url,
-		Price:    price,
-		Currency: currency,
-	}
 	return nil
 }

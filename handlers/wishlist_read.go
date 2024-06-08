@@ -12,13 +12,24 @@ import (
 
 func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		req := NewReadWishlistRequest(r)
-		err := req.Init()
+		// req := NewReadWishlistRequest(r)
+		req := NewApiRequest(r, func(r *http.Request) (vs map[string]interface{}, err error) {
+			vs = make(map[string]interface{}, 1)
+			vs["id"] = r.PathValue("id")
+			return vs, nil
+		})
+		/*err := req.Init()
+		if err != nil {
+			return err
+		}*/
+		err := req.Validate(map[string]interface{}{
+			"id": "required,number",
+		})
 		if err != nil {
 			return err
 		}
 
-		wl, err := srvcs.WishlistReader.ReadById(req.R.Context(), req.Data.WishlistId)
+		wl, err := srvcs.WishlistReader.ReadById(req.R().Context(), 1)
 		if err != nil {
 			return err
 		}
@@ -96,7 +107,7 @@ func (r *ReadWishlistRequest) validate() error {
 			}
 		}
 		if len(es) > 0 {
-			return ValidationError(es)
+			return ValidationErrors(es)
 		}
 	}
 	return nil

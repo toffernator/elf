@@ -1,16 +1,21 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"net/url"
+
+	"github.com/go-playground/validator/v10"
 )
+
+var validate *validator.Validate = validator.New(validator.WithRequiredStructEnabled())
 
 type ApiRequest interface {
 	R() *http.Request
-	Values() (url.Values, error)
+	Values() (map[string]interface{}, error)
+	Validate() error
 }
 
-type PathValueExtractor func(r *http.Request) (url.Values, error)
+type PathValueExtractor func(r *http.Request) (map[string]interface{}, error)
 
 type apiRequest struct {
 	r                  *http.Request
@@ -26,19 +31,33 @@ func (r *apiRequest) R() *http.Request {
 	return r.r
 }
 
-func (r *apiRequest) Values() (vs url.Values, err error) {
+func (r *apiRequest) Values() (vs map[string]interface{}, err error) {
 	vs, err = r.pathValueExtractor(r.R())
 	if err != nil {
 		return vs, err
 	}
 
-	r.R().ParseForm()
+	err = r.R().ParseForm()
 	if err != nil {
 		return vs, err
 	}
-	for k, v := range r.R().Form {
+	for k := range r.R().Form {
+		v := r.R().Form.Get(k)
 		vs[k] = v
 	}
 
 	return vs, nil
 }
+
+func (r *apiRequest) Validate(rules map[string]interface{}) (err error) {
+	vs, err := r.Values()
+	if err != nil {
+		return err
+	}
+
+	es := validate.ValidateMap(vs, rules)
+
+	return nil
+}
+
+func Foo(es map[string]interface{})

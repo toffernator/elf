@@ -77,7 +77,7 @@ func LoginCallback(cfg *config.Config, srvcs *AuthServices) HTTPHandler {
 			}
 		}
 		if len(es) > 0 {
-			return ValidationError(es)
+			return ValidationErrors(es)
 		}
 		state := r.URL.Query().Get("state")
 		code := r.URL.Query().Get("code")
