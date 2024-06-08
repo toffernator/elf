@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+func Index(w http.ResponseWriter, r *http.Request) error {
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
+	return nil
+}
+
 func HandleHome(w http.ResponseWriter, r *http.Request) error {
 	if openModalExists := r.URL.Query().Has("openModal"); openModalExists {
 		switch r.URL.Query().Get("openModal") {

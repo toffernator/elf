@@ -58,6 +58,7 @@ func main() {
 	router.Use(middleware.Make(middleware.AddUserToContext(sessionStore, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey)))
 
 	router.Handle("/*", public())
+	router.Get("/", handlers.Make(handlers.Index))
 	router.Get("/home", handlers.Make(handlers.HandleHome))
 	router.Get("/login", handlers.Make(handlers.Login(authenticator, secureCookies, cfg.OAuth.StateLength, cfg.OAuth.StateCookieName)))
 	router.Get("/login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users, cfg.OAuth.StateCookieName, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey, cfg.Auth0.SessionCookieAccessTokenKey)))
