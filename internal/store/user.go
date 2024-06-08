@@ -1,8 +1,7 @@
 package store
 
 import (
-	"elf/internal/auth"
-	"fmt"
+	"elf/internal/core"
 	"log/slog"
 
 	"github.com/jmoiron/sqlx"
@@ -16,28 +15,25 @@ func NewUser(db *sqlx.DB) *User {
 	return &User{db}
 }
 
-func (s *User) Create(sub string, name string, email string) (auth.AuthenticatedUser, error) {
-	slog.Info("Creating a user", "sub", sub, "name", name, "email", email)
+func (s *User) Create(sub string, name string) (u core.User, err error) {
+	slog.Info("Called with", "sub", sub, "name", name)
 
-	u := auth.AuthenticatedUser{
-		Profile: auth.Profile{
-			Sub:   sub,
-			Name:  name,
-			Email: email,
-		},
+	u = core.User{
+		Sub:  sub,
+		Name: name,
 	}
 
-	res, err := s.db.NamedExec(`INSERT INTO user (sub, name, email)
-  VALUES (:sub, :name, :email)`, u)
+	res, err := s.db.NamedExec(`INSERT INTO user (sub, name)
+  VALUES (:sub, :name)`, u)
 	if err != nil {
-		return auth.AuthenticatedUser{}, fmt.Errorf("User create error: %w", err)
+		return u, err
 	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
-		return auth.AuthenticatedUser{}, fmt.Errorf("User last insert id error: %w", err)
+		return u, err
 	}
-	u.User.Id = int(id)
+	u.Id = int(id)
 
 	return u, nil
 }

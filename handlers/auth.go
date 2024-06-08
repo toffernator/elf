@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/rand"
 	"elf/internal/auth"
+	"elf/internal/core"
 	"encoding/base64"
 	"encoding/gob"
 	"errors"
@@ -16,11 +17,11 @@ import (
 )
 
 func init() {
-	gob.Register(auth.AuthenticatedUser{})
+	gob.Register(core.User{})
 }
 
 type UserCreator interface {
-	Create(sub string, name string, email string) (auth.AuthenticatedUser, error)
+	Create(sub string, name string) (core.User, error)
 }
 
 func Login(authenticator *auth.Authenticator, secureCookies *securecookie.SecureCookie, oauthStateLength int, oauthStateCookieName string) HTTPHandler {
@@ -49,7 +50,7 @@ func Login(authenticator *auth.Authenticator, secureCookies *securecookie.Secure
 	}
 }
 
-func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users auth.AuthenticatedUserStore, oauthStateCookieName string, sessionCookieName string, sessionCookieUserKey string, sessionCookieAccessTokenKey string, usersDb UserCreator) HTTPHandler {
+func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users UserCreator, oauthStateCookieName string, sessionCookieName string, sessionCookieUserKey string, sessionCookieAccessTokenKey string) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		queryParameterErrors := map[string]string{}
 		if !r.URL.Query().Has("state") {
@@ -90,12 +91,12 @@ func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secu
 			return err
 		}
 
-		var profile auth.Profile
-		if err := idToken.Claims(&profile); err != nil {
+		var p auth.Profile
+		if err := idToken.Claims(&p); err != nil {
 			return err
 		}
 
-		user, err := usersDb.Create(profile.Sub, profile.Name, profile.Email)
+		user, err := users.Create(p.Sub, p.Name)
 		if err != nil {
 			return err
 		}

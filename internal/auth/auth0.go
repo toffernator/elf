@@ -25,6 +25,11 @@ type Authenticator struct {
 	domain   string
 }
 
+type Profile struct {
+	Sub  string `json:"sub"`
+	Name string `json:"name"`
+}
+
 // NewNewAuthenticator returns an Authenticator with a the default Auth0 OIDC
 // provider, and the default Auth0 OAuth configuration for Elf.
 func NewAuthenticator(ctx context.Context, cfg config.Auth0) (auth *Authenticator, err error) {

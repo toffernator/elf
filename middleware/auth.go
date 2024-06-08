@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"elf/internal/auth"
+	"elf/internal/core"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -14,7 +14,7 @@ type MiddlewareFunc func(w http.ResponseWriter, r *http.Request, next http.Handl
 
 type contextKey int
 
-const AuthenticatedUserKey contextKey = 0
+const UserKey contextKey = 0
 
 func AddUserToContext(store sessions.Store, sessionCookieName string, sessionCookieUserKey string) MiddlewareFunc {
 	return func(w http.ResponseWriter, r *http.Request, next http.Handler) error {
@@ -23,12 +23,12 @@ func AddUserToContext(store sessions.Store, sessionCookieName string, sessionCoo
 			return err
 		}
 
-		user, ok := session.Values[sessionCookieUserKey].(auth.AuthenticatedUser)
+		user, ok := session.Values[sessionCookieUserKey].(core.User)
 		if !ok {
 			return errors.New("Cannot cast the user in the session to an auth.AuthenticatedUser")
 		}
 
-		ctxWithUser := context.WithValue(r.Context(), AuthenticatedUserKey, user)
+		ctxWithUser := context.WithValue(r.Context(), UserKey, user)
 		rWithUser := r.WithContext(ctxWithUser)
 		next.ServeHTTP(w, rWithUser)
 
@@ -36,11 +36,11 @@ func AddUserToContext(store sessions.Store, sessionCookieName string, sessionCoo
 	}
 }
 
-func GetUser(ctx context.Context) (auth.AuthenticatedUser, error) {
-	if user, ok := ctx.Value(AuthenticatedUserKey).(auth.AuthenticatedUser); ok {
+func GetUser(ctx context.Context) (core.User, error) {
+	if user, ok := ctx.Value(UserKey).(core.User); ok {
 		return user, nil
 	}
-	return auth.AuthenticatedUser{}, errors.New("Unauthenticated")
+	return core.User{}, errors.New("Unauthenticated")
 }
 
 func Make(m MiddlewareFunc) func(http.Handler) http.Handler {

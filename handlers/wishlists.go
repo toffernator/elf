@@ -20,7 +20,7 @@ func NewWishlist(wls WishlistCreator) HTTPHandler {
 			return err
 		}
 
-		wl, err := wls.Create(r.FormValue("name"), owner.User.Id)
+		wl, err := wls.Create(r.FormValue("name"), owner.Id)
 		if err != nil {
 			return err
 		}
