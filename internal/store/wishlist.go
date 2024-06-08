@@ -25,6 +25,7 @@ func (s *Wishlist) Seed() {
 		{Id: 2, Products: products[:1], OwnerId: 1},
 		{Id: 3, Products: products[0:], OwnerId: 0},
 	}
+	panic("store.Wishlist.Seed() is not implemented")
 }
 
 func (s *Wishlist) Create(name string, ownerId int, products ...core.Product) (core.Wishlist, error) {
@@ -34,7 +35,7 @@ func (s *Wishlist) Create(name string, ownerId int, products ...core.Product) (c
 	}
 
 	res, err := s.db.NamedExec(`INSERT INTO wishlist (name, owner_id)
-        VALUES (:Name, :OwnerId)`, wl)
+        VALUES (:name, :owner_id)`, wl)
 	if err != nil {
 		return core.Wishlist{}, fmt.Errorf("Wishlist create error: %w", err)
 	}

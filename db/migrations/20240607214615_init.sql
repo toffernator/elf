@@ -9,7 +9,9 @@ CREATE TABLE user (
 CREATE TABLE wishlist (
   id INTEGER PRIMARY KEY,
   owner_id INTEGER,
+  name string,
   image string,
+  
   FOREIGN KEY(owner_id) REFERENCES  user(id)
 );
 
