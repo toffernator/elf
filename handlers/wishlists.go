@@ -37,6 +37,15 @@ func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 			return err
 		}
 
+		if isModalOpen := r.URL.Query().Has("openModal"); isModalOpen {
+			switch r.URL.Query().Get("openModal") {
+			case "addProduct":
+				return Render(w, r, wishlist.Modal(readWishlistRequest.Id))
+			default:
+				return ApiError{StatusCode: http.StatusUnprocessableEntity, Msg: "unsupported modal"}
+			}
+		}
+
 		wl, err := srvcs.WishlistReader.ReadById(readWishlistRequest.r.Context(), readWishlistRequest.Id)
 		if err != nil {
 			return err

@@ -1,6 +1,7 @@
-<main><h2>
-</h2><ul id=\"products\">
+<div id=\"modal\" _=\"on htmx:afterRequest remove me end\"><div id=\"modal-underlay\" class=\"absolute  top-0 left-0 h-full w-full flex items-center justify-center z-10 bg-black/50\" _=\"on click trigger elf:closeModal\"><div class=\"w-5/12 p-2 bg-white z-20\"><h2 class=\"text-3xl\">Add Product</h2><form id=\"modal-form\" class=\"flex flex-col gap-2\" hx-patch=\"
+\" hx-target=\"#add-product\" hx-swap=\"beforebegin\"><input name=\"name\" type=\"text\" placeholder=\" Name...\" class=\"border border-gray-200\" required> <input name=\"url\" type=\"url\" placeholder=\"Link...\" class=\"border border-gray-200\" required> <input name=\"price\" type=\"number\" placeholder=\"Price...\" class=\"border border-gray-200\" required> <input name=\"currency\" type=\"text\" placeholder=\"Currency...\" class=\"border border-gray-200\" required> <button type=\"submit\" class=\"bg-blue-500 text-white\">Create</button></form></div></div></div>
+<main><ul id=\"products\">
 <li>
 </li>
-<li>
+<li id=\"add-product\" class=\"flex flex-col items-center justify-stretch w-36 border border-gray-200\" hx-get=\"?openModal=addProduct\" hx-target=\"main\" hx-swap=\"beforeend\"><h2 class=\"\">Add a Product</h2>
 </li></ul></main>
