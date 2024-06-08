@@ -10,7 +10,7 @@ import (
 func PatchWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewUpdateWishlistRequst(r)
-		err := req.Validate()
+		err := Validate2(req)
 		if err != nil {
 			return err
 		}
@@ -47,25 +47,6 @@ func NewUpdateWishlistRequst(r *http.Request) *UpdateWishlistRequest {
 	return &UpdateWishlistRequest{R: r}
 }
 
-func (r *UpdateWishlistRequest) Validate() error {
-	values, err := r.parse()
-	if err != nil {
-		return nil
-	}
-
-	err = Parse(&r.Data, values)
-	if err != nil {
-		return err
-	}
-
-	err = Validate(&r.Data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *UpdateWishlistRequest) parse() (values url.Values, err error) {
 	err = r.R.ParseForm()
 	if err != nil {
@@ -74,4 +55,8 @@ func (r *UpdateWishlistRequest) parse() (values url.Values, err error) {
 
 	values = r.R.Form
 	return values, nil
+}
+
+func (r *UpdateWishlistRequest) data() interface{} {
+	return &r.Data
 }

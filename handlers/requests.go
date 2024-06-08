@@ -12,6 +12,29 @@ var validate *validator.Validate = validator.New(validator.WithRequiredStructEna
 
 var decoder *form.Decoder = form.NewDecoder()
 
+type ApiRequest interface {
+	parse() (url.Values, error)
+	data() interface{}
+}
+
+func Validate2(r ApiRequest) error {
+	values, err := r.parse()
+	if err != nil {
+		return err
+	}
+	err = Parse(r.data(), values)
+	if err != nil {
+		return err
+	}
+
+	err = Validate(r.data())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Validate will transform validator.ValidateErrors into an ApiError
 func Validate(data interface{}) error {
 	slog.Info("called with args", "data", data)

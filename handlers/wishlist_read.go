@@ -11,16 +11,9 @@ import (
 func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) (err error) {
 		req := NewReadWishlistRequest(r)
-		err = req.Validate()
-		if err != nil {
-			return err
-		}
-		err = req.Validate()
-		if err != nil {
-			return err
-		}
+		err = Validate2(req)
 
-		wl, err := srvcs.WishlistReader.ReadById(req.R.Context(), 1)
+		wl, err := srvcs.WishlistReader.ReadById(req.R.Context(), req.Data.WishlistId)
 		if err != nil {
 			return err
 		}
@@ -32,7 +25,7 @@ func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewReadWishlistRequest(r)
-		err := req.Validate()
+		err := Validate2(req)
 		if err != nil {
 			return err
 		}
@@ -66,27 +59,13 @@ func NewReadWishlistRequest(r *http.Request) *ReadWishlistRequest {
 	return &ReadWishlistRequest{R: r}
 }
 
-func (r *ReadWishlistRequest) Validate() error {
-	values, err := r.parse()
-	if err != nil {
-		return err
-	}
-	err = Parse(&r.Data, values)
-	if err != nil {
-		return err
-	}
-
-	err = Validate(&r.Data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *ReadWishlistRequest) parse() (values url.Values, err error) {
 	values = make(url.Values, 1)
 	idStr := r.R.PathValue("id")
 	values.Set("id", idStr)
 	return values, nil
+}
+
+func (r *ReadWishlistRequest) data() interface{} {
+	return &r.Data
 }
