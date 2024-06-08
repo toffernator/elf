@@ -14,6 +14,8 @@ func Make(h HTTPHandler) http.HandlerFunc {
 		if err := h(w, r); err != nil {
 			if e, ok := err.(ApiError); ok {
 				http.Error(w, e.Error(), e.StatusCode)
+			} else {
+				http.Error(w, "We did an oopsie!", http.StatusInternalServerError)
 			}
 
 			slog.Error("HTTP handler error", "err", err, "path", r.URL.Path)
