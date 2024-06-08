@@ -1,2 +1,6 @@
-<main>
-</main>
+<main><h2>
+</h2><ul id=\"products\">
+<li>
+</li>
+<li>
+</li></ul></main>

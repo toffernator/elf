@@ -2,11 +2,20 @@ package wishlist
 
 import "elf/views/layouts"
 import "elf/internal/core"
+import "elf/views/components"
 
 templ Page(w core.Wishlist) {
 @layouts.Base() {
 <main>
-    { w.Name }
+    <h2>{ w.Name }</h2>
+    <ul id="products">
+        for _, p := range w.Products {
+        <li>{ p.Name }</li>
+        }
+        <li>
+            @components.Icon("bi bi-plus-lg")
+        </li>
+    </ul>
 </main>
 }
 }
