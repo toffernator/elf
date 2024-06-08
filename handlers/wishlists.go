@@ -8,7 +8,7 @@ import (
 )
 
 type WishlistCreator interface {
-	Create(name string, ownerId int, products ...core.Product) core.Wishlist
+	Create(name string, ownerId int, products ...core.Product) (core.Wishlist, error)
 }
 
 func NewWishlist(wls WishlistCreator) HTTPHandler {
@@ -20,7 +20,10 @@ func NewWishlist(wls WishlistCreator) HTTPHandler {
 			return err
 		}
 
-		wl := wls.Create(r.FormValue("name"), owner.User.Id)
+		wl, err := wls.Create(r.FormValue("name"), owner.User.Id)
+		if err != nil {
+			return err
+		}
 
 		return Render(w, r, components.Wishlist(wl))
 	}

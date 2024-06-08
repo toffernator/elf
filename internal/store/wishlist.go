@@ -2,6 +2,7 @@ package store
 
 import (
 	"elf/internal/core"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -26,6 +27,24 @@ func (s *Wishlist) Seed() {
 	}
 }
 
-func (s *Wishlist) Create(name string, ownerId int, products ...core.Product) core.Wishlist {
-	return core.Wishlist{}
+func (s *Wishlist) Create(name string, ownerId int, products ...core.Product) (core.Wishlist, error) {
+	wl := core.Wishlist{
+		Name:    name,
+		OwnerId: ownerId,
+	}
+
+	res, err := s.db.NamedExec(`INSERT INTO wishlist (name, owner_id)
+        VALUES (:Name, :OwnerId)`, wl)
+	if err != nil {
+		return core.Wishlist{}, fmt.Errorf("Wishlist create error: %w", err)
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return core.Wishlist{}, fmt.Errorf("Wishlist last insert id error: %w", err)
+	}
+
+	wl.Id = int(id)
+
+	return wl, nil
 }

@@ -12,10 +12,10 @@ var (
 )
 
 type Profile struct {
-	Sub     string `json:"sub"`
-	Name    string `json:"name"`
-	Picture string `json:"picture"`
-	Email   string `json:"email"`
+	Sub     string `json:"sub" db:"sub"`
+	Name    string `json:"name" db:"name"`
+	Picture string `json:"picture" db:"picture"`
+	Email   string `json:"email" db:"email"`
 }
 
 type AuthenticatedUser struct {

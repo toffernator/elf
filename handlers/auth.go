@@ -19,6 +19,10 @@ func init() {
 	gob.Register(auth.AuthenticatedUser{})
 }
 
+type UserCreator interface {
+	Create(sub string, name string, email string) (auth.AuthenticatedUser, error)
+}
+
 func Login(authenticator *auth.Authenticator, secureCookies *securecookie.SecureCookie, oauthStateLength int, oauthStateCookieName string) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		state, err := generateState(oauthStateLength)
@@ -45,7 +49,7 @@ func Login(authenticator *auth.Authenticator, secureCookies *securecookie.Secure
 	}
 }
 
-func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users auth.AuthenticatedUserStore, oauthStateCookieName string, sessionCookieName string, sessionCookieUserKey string, sessionCookieAccessTokenKey string) HTTPHandler {
+func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secureCookies *securecookie.SecureCookie, users auth.AuthenticatedUserStore, oauthStateCookieName string, sessionCookieName string, sessionCookieUserKey string, sessionCookieAccessTokenKey string, usersDb UserCreator) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		queryParameterErrors := map[string]string{}
 		if !r.URL.Query().Has("state") {
@@ -91,14 +95,14 @@ func LoginCallback(authenticator *auth.Authenticator, store sessions.Store, secu
 			return err
 		}
 
-		user, err := users.Create(profile)
-		if errors.Is(err, auth.ErrDuplicateSub) {
+		user, err := usersDb.Create(profile.Sub, profile.Name, profile.Email)
+		if err != nil {
 			return err
 		}
 
 		session, _ := store.Get(r, sessionCookieName)
 		session.Values[sessionCookieAccessTokenKey] = token.AccessToken
-		session.Values[sessionCookieUserKey] = *user
+		session.Values[sessionCookieUserKey] = user
 		if err = session.Save(r, w); err != nil {
 			return err
 		}

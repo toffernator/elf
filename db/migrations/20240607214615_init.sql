@@ -3,8 +3,7 @@
 CREATE TABLE user (
   id INTEGER PRIMARY KEY,
   sub TEXT,
-  name TEXT,
-  email TEXT
+  name TEXT
 );
 
 CREATE TABLE wishlist (

@@ -7,9 +7,9 @@ var (
 )
 
 type Wishlist struct {
-	Id       int       `json:"id"`
-	OwnerId  int       `json:"ownerId"`
-	Name     string    `json:"name"`
-	Image    string    `json:"image"`
+	Id       int       `json:"id" db:"id"`
+	OwnerId  int       `json:"ownerId" db:"owner_id"`
+	Name     string    `json:"name" db:"name"`
+	Image    string    `json:"image" db:"image"`
 	Products []Product `json:"products"`
 }
