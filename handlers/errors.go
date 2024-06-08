@@ -28,7 +28,7 @@ type FieldError struct {
 	Reason   string
 }
 
-func ValidationError(errors map[Field]FieldError) ApiError {
+func ValidationErrors(errors map[Field]FieldError) ApiError {
 	return ApiError{
 		StatusCode: http.StatusUnprocessableEntity,
 		Msg:        errors,

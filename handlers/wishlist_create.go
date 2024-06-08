@@ -45,7 +45,19 @@ func NewCreateWishlistRequest(r *http.Request) *CreateWishlistRequest {
 }
 
 func (r *CreateWishlistRequest) Init() error {
-	// Parse
+	if err := r.parse(); err != nil {
+		return err
+	}
+	if err := r.mold(); err != nil {
+		return err
+	}
+	if err := r.validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *CreateWishlistRequest) parse() error {
 	if err := r.R.ParseForm(); err != nil {
 		return err
 	}
@@ -57,10 +69,14 @@ func (r *CreateWishlistRequest) Init() error {
 		return err
 	}
 	r.Data.OwnerId = owner.Id
+	return nil
+}
 
-	// Mold
+func (r *CreateWishlistRequest) mold() error {
+	return nil
+}
 
-	// Validate
+func (r *CreateWishlistRequest) validate() error {
 	es := make(map[Field]FieldError, 0)
 	if err := validate.StructCtx(r.R.Context(), r.Data); err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
@@ -74,6 +90,5 @@ func (r *CreateWishlistRequest) Init() error {
 			return ValidationError(es)
 		}
 	}
-
 	return nil
 }

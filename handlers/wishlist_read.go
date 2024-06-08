@@ -6,17 +6,19 @@ import (
 	components "elf/views/wishlist"
 	"net/http"
 	"strconv"
+
+	"github.com/go-playground/validator/v10"
 )
 
 func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewReadWishlistRequest(r)
-		err := req.Validate()
+		err := req.Init()
 		if err != nil {
 			return err
 		}
 
-		wl, err := srvcs.WishlistReader.ReadById(req.Context(), req.WishlistId)
+		wl, err := srvcs.WishlistReader.ReadById(req.R.Context(), req.Data.WishlistId)
 		if err != nil {
 			return err
 		}
@@ -28,7 +30,7 @@ func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewReadWishlistRequest(r)
-		err := req.Validate()
+		err := req.Init()
 		if err != nil {
 			return err
 		}
@@ -36,13 +38,13 @@ func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 		if isModalOpen := r.URL.Query().Has("openModal"); isModalOpen {
 			switch r.URL.Query().Get("openModal") {
 			case "addProduct":
-				return Render(w, r, wishlist.Modal(req.WishlistId))
+				return Render(w, r, wishlist.Modal(req.Data.WishlistId))
 			default:
 				return ApiError{StatusCode: http.StatusUnprocessableEntity, Msg: "unsupported modal"}
 			}
 		}
 
-		wl, err := srvcs.WishlistReader.ReadById(req.Context(), req.WishlistId)
+		wl, err := srvcs.WishlistReader.ReadById(req.R.Context(), req.Data.WishlistId)
 		if err != nil {
 			return err
 		}
@@ -52,30 +54,50 @@ func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 }
 
 type ReadWishlistRequest struct {
-	*http.Request
-	WishlistId int
+	R    *http.Request
+	Data struct {
+		WishlistId int
+	}
 }
 
 func NewReadWishlistRequest(r *http.Request) *ReadWishlistRequest {
-	return &ReadWishlistRequest{Request: r}
+	return &ReadWishlistRequest{R: r}
 }
 
-func (r *ReadWishlistRequest) Validate() error {
-	errors := make(map[Field]FieldError, 0)
+func (r *ReadWishlistRequest) Init() error {
+	if err := r.validate(); err != nil {
+		return err
+	}
+	if err := r.parse(); err != nil {
+		return err
+	}
+	return nil
+}
 
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+func (r *ReadWishlistRequest) parse() error {
+	id, err := strconv.Atoi(r.R.PathValue("id"))
 	if err != nil {
-		errors["id"] = FieldError{
-			Location: PATH_PARAM_LOCATION,
-			Value:    idStr,
-			Reason:   REASON_NOT_AN_INTEGER,
+		return err
+	}
+	r.Data.WishlistId = id
+	return nil
+}
+
+func (r *ReadWishlistRequest) validate() error {
+	idStr := r.R.PathValue("id")
+
+	es := make(map[Field]FieldError)
+	if err := validate.VarCtx(r.R.Context(), idStr, "required,number"); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			es[Field(err.Field())] = FieldError{
+				Location: "",
+				Value:    err.Param(),
+				Reason:   err.Error(),
+			}
+		}
+		if len(es) > 0 {
+			return ValidationError(es)
 		}
 	}
-	if len(errors) > 0 {
-		return ValidationError(errors)
-	}
-
-	r.WishlistId = id
 	return nil
 }
