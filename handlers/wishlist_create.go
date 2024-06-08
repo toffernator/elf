@@ -61,8 +61,18 @@ func (r *CreateWishlistRequest) Init() error {
 	// Mold
 
 	// Validate
+	es := make(map[Field]FieldError, 0)
 	if err := validate.StructCtx(r.R.Context(), r.Data); err != nil {
-		return err
+		for _, err := range err.(validator.ValidationErrors) {
+			es[Field(err.Field())] = FieldError{
+				Location: "",
+				Value:    err.Param(),
+				Reason:   err.Error(),
+			}
+		}
+		if len(es) > 0 {
+			return ValidationError(es)
+		}
 	}
 
 	return nil
