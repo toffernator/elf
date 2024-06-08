@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/gorilla/securecookie"
@@ -61,44 +62,13 @@ func Login(cfg *config.Config, srvcs *AuthServices) HTTPHandler {
 
 func LoginCallback(cfg *config.Config, srvcs *AuthServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		es := map[Field]FieldError{}
-		if !r.URL.Query().Has("state") {
-			es["state"] = FieldError{
-				Location: QUERY_PARAM_LOCATION,
-				Value:    "",
-				Reason:   "must be set",
-			}
-		}
-		if !r.URL.Query().Has("code") {
-			es["code"] = FieldError{
-				Location: QUERY_PARAM_LOCATION,
-				Value:    "",
-				Reason:   "must be set",
-			}
-		}
-		if len(es) > 0 {
-			return ValidationErrors(es)
-		}
-		state := r.URL.Query().Get("state")
-		code := r.URL.Query().Get("code")
-
-		expectedStateCookie, err := r.Cookie(cfg.OAuth.StateCookieName)
+		req := NewLoginCallBackRequst(r)
+		err := Validate(req)
 		if err != nil {
-			return fmt.Errorf("%s not present because: %w", cfg.OAuth.StateCookieName, err)
-		}
-		if err = expectedStateCookie.Valid(); err != nil {
 			return err
 		}
 
-		var expectedState string
-		if err = srvcs.SecureCookie.Decode(cfg.OAuth.StateCookieName, expectedStateCookie.Value, &expectedState); err != nil {
-			return err
-		}
-		if state != expectedState {
-			return errors.New("The provided state does not match the expected state.")
-		}
-
-		token, err := srvcs.Authenticator.Config.Exchange(r.Context(), code)
+		token, err := srvcs.Authenticator.Config.Exchange(r.Context(), req.Data.Code)
 		if err != nil {
 			return err
 		}
@@ -128,6 +98,49 @@ func LoginCallback(cfg *config.Config, srvcs *AuthServices) HTTPHandler {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return nil
 	}
+}
+
+type LoginCallBackRequest struct {
+	R *http.Request
+
+	Data struct {
+		Code          string `validate:"required" form:"code"`
+		State         string `validate:"eqfield=ExpectedState" form:"state"`
+		ExpectedState string `validate:"required" form:"expectedState"`
+	}
+}
+
+func NewLoginCallBackRequst(r *http.Request) *LoginCallBackRequest {
+	return &LoginCallBackRequest{R: r}
+}
+
+func (r *LoginCallBackRequest) parse() (values url.Values, err error) {
+	err = r.R.ParseForm()
+	if err != nil {
+		return values, err
+	}
+
+	values = make(url.Values, 2)
+	values = r.R.Form
+
+	expectedStateCookie, err := r.Cookie(cfg.OAuth.StateCookieName)
+	if err != nil {
+		return fmt.Errorf("%s not present because: %w", cfg.OAuth.StateCookieName, err)
+	}
+	if err = expectedStateCookie.Valid(); err != nil {
+		return err
+	}
+
+	var expectedState string
+	if err = srvcs.SecureCookie.Decode(cfg.OAuth.StateCookieName, expectedStateCookie.Value, &expectedState); err != nil {
+		return err
+	}
+
+	return values, nil
+}
+
+func (r *LoginCallBackRequest) data() interface{} {
+	return &r.Data
 }
 
 func generateState(n int) (string, error) {
