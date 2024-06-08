@@ -10,7 +10,7 @@ import (
 func PatchWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewUpdateWishlistRequst(r)
-		err := Validate2(req)
+		err := Validate(req)
 		if err != nil {
 			return err
 		}

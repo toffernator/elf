@@ -11,7 +11,7 @@ import (
 func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) (err error) {
 		req := NewReadWishlistRequest(r)
-		err = Validate2(req)
+		err = Validate(req)
 
 		wl, err := srvcs.WishlistReader.ReadById(req.R.Context(), req.Data.WishlistId)
 		if err != nil {
@@ -25,7 +25,7 @@ func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewReadWishlistRequest(r)
-		err := Validate2(req)
+		err := Validate(req)
 		if err != nil {
 			return err
 		}

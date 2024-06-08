@@ -12,7 +12,7 @@ import (
 func NewWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewCreateWishlistRequest(r)
-		err := Validate2(req)
+		err := Validate(req)
 		if err != nil {
 			return err
 		}
