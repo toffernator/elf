@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/url"
 
 	"github.com/go-playground/form"
@@ -9,8 +10,12 @@ import (
 
 var validate *validator.Validate = validator.New(validator.WithRequiredStructEnabled())
 
+var decoder *form.Decoder = form.NewDecoder()
+
 // Validate will transform validator.ValidateErrors into an ApiError
 func Validate(data interface{}) error {
+	slog.Info("called with args", "data", data)
+
 	err := validate.Struct(data)
 	if err != nil {
 		if es, ok := err.(validator.ValidationErrors); ok {
@@ -23,12 +28,17 @@ func Validate(data interface{}) error {
 }
 
 func Parse(dst interface{}, values url.Values) error {
-	if err := decoder.Decode(dst, values); err != nil {
+	slog.Info("called with args", "dst", dst, "values", values)
+
+	err := decoder.Decode(dst, values)
+	if err != nil {
 		if es, ok := err.(form.DecodeErrors); ok {
 			return DecoderErrors(es)
 		}
 
 		return err
 	}
+
+	slog.Info("ends with value", "dst", dst)
 	return nil
 }

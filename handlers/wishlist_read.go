@@ -5,15 +5,13 @@ import (
 	"elf/views/wishlist"
 	components "elf/views/wishlist"
 	"net/http"
-	"strconv"
-
-	"github.com/go-playground/validator/v10"
+	"net/url"
 )
 
 func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) (err error) {
 		req := NewReadWishlistRequest(r)
-		err = req.Parse()
+		err = req.Validate()
 		if err != nil {
 			return err
 		}
@@ -34,7 +32,7 @@ func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewReadWishlistRequest(r)
-		err := req.Init()
+		err := req.Validate()
 		if err != nil {
 			return err
 		}
@@ -60,7 +58,7 @@ func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 type ReadWishlistRequest struct {
 	R    *http.Request
 	Data struct {
-		WishlistId int `validate:"required"`
+		WishlistId int `validate:"required" form:"id"`
 	}
 }
 
@@ -68,42 +66,27 @@ func NewReadWishlistRequest(r *http.Request) *ReadWishlistRequest {
 	return &ReadWishlistRequest{R: r}
 }
 
-func (r *ReadWishlistRequest) Init() error {
-	if err := r.Parse(); err != nil {
-		return err
-	}
-	if err := r.Validate(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *ReadWishlistRequest) Parse() error {
-	idStr := r.R.PathValue("id")
-	err := validate.Var(idStr, "number")
-	if err != nil {
-		if es, ok := err.(validator.ValidationErrors); ok {
-			return ValidationErrors2(es)
-		}
-		return err
-	}
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		return err
-	}
-
-	r.Data.WishlistId = id
-	return nil
-}
-
 func (r *ReadWishlistRequest) Validate() error {
-	err := validate.Struct(r.Data)
+	values, err := r.parse()
 	if err != nil {
-		if es, ok := err.(validator.ValidationErrors); ok {
-			return ValidationErrors2(es)
-		}
+		return err
+	}
+	err = Parse(&r.Data, values)
+	if err != nil {
+		return err
+	}
+
+	err = Validate(&r.Data)
+	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r *ReadWishlistRequest) parse() (values url.Values, err error) {
+	values = make(url.Values, 1)
+	idStr := r.R.PathValue("id")
+	values.Set("id", idStr)
+	return values, nil
 }

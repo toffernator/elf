@@ -7,11 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-
-	"github.com/go-playground/form"
 )
-
-var decoder *form.Decoder = form.NewDecoder()
 
 func NewWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
