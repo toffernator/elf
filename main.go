@@ -16,7 +16,10 @@ import (
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+
+	_ "github.com/glebarez/go-sqlite"
 )
 
 var users auth.AuthenticatedUserStore = &auth.ArrayAuthenticatedUserStore{}
@@ -44,12 +47,9 @@ func main() {
 		return
 	}
 
-	wishlists := store.NewArrayWishlist()
+	db := sqlx.MustConnect("sqlite", cfg.Db.Name)
 
-	_, err = store.NewSqliteStore(cfg.Db)
-	if err != nil {
-		slog.Error("The database failed initialization", "err", err.Error())
-	}
+	wishlists := store.NewWishlist(db)
 
 	router := chi.NewMux()
 

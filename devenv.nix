@@ -2,12 +2,23 @@
 
 let appName = "main";
 in {
+  env = {
+    GOOSE_DRIVER = "sqlite3";
+    GOOSE_DBSTRING = "elf.db";
+    GOOSE_MIGRATION_DIR = "db/migrations";
+  };
+
   # FIXME: Install `templ`.
-  packages = with pkgs; [ git tailwindcss air ];
+  packages = with pkgs; [ git tailwindcss air goose ];
 
   languages.go.enable = true;
 
   scripts = {
+    create-migration = {
+      exec = ''
+        ${pkgs.goose}/bin/goose create $1 sql
+      '';
+    };
 
     tailwind-build = {
       exec = ''
