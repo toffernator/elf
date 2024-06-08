@@ -1,6 +1,7 @@
 package core
 
 type Product struct {
+	Id        string `json:"id" db:"id"`
 	Name      string `json:"name" db:"name"`
 	Url       string `json:"url" db:"url"`
 	Price     int    `json:"price" db:"price"`
