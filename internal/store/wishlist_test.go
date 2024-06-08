@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/jmoiron/sqlx"
+	"github.com/pressly/goose"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,13 +21,35 @@ var insertUser, _ = db.Preparex(`INSERT INTO user (name)
 var insertWishlist, _ = db.Preparex(`INSERT INTO wishlist (owner_id, name)
     VALUES($1, $2)`)
 var insertProduct, _ = db.Preparex(`INSERT INTO product (name, url, price, currency, belongs_to_id)
-    VALEUS($1, $2, $3, $4, $5)`)
+    VALUES($1, $2, $3, $4, $5)`)
 
 func seed() {
-	insertUser.Exec("randy bobandy")
-	insertWishlist.Exec(1, "birthday")
-	insertProduct.Exec("iPad", "www.example.com", 100, "eur", 1)
-	insertProduct.Exec("Macbook", "www.example.com", 200, "eur", 1)
+	goose.SetDialect("sqlite3")
+	err := goose.Up(db.DB, "../../db/migrations")
+	if err != nil {
+		panic(fmt.Errorf("goose.Up error: %w", err))
+	}
+
+	_, err = insertUser.Exec("randy bobandy")
+	if err != nil {
+		panic(fmt.Errorf("Insert user panic: %w", err))
+	}
+
+	_, err = insertWishlist.Exec(1, "birthday")
+	if err != nil {
+		panic(fmt.Errorf("Insert wishlist panic: %w", err))
+	}
+
+	_, err = insertProduct.Exec("iPad", "www.example.com", 100, "eur", 1)
+	if err != nil {
+		panic(fmt.Errorf("Insert product panic: %w", err))
+	}
+
+	_, err = insertProduct.Exec("Macbook", "www.example.com", 200, "eur", 1)
+	if err != nil {
+		panic(fmt.Errorf("Insert product panic: %w", err))
+	}
+
 }
 
 var readyByIdTests = []struct {
@@ -50,6 +73,7 @@ func TestReadById(t *testing.T) {
 			actual, err := wls.ReadById(context.Background(), tt.input)
 			if err != nil {
 				t.Errorf("%s failed with error: %v", t.Name(), err)
+				t.FailNow()
 			}
 
 			assert.Equal(t, tt.input, actual.Id)

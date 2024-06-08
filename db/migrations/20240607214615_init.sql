@@ -11,19 +11,25 @@ CREATE TABLE wishlist (
   owner_id INTEGER,
   name string,
   image string,
-  
-  FOREIGN KEY(owner_id) REFERENCES  user(id)
+
+  FOREIGN KEY(owner_id) REFERENCES user(id)
 );
 
 CREATE TABLE product (
   id INTEGER PRIMARY KEY,
   name TEXT,
   url TEXT,
-  price INTEGER
+  price INTEGER,
+  currency TEXT,
+  belongs_to_id INTEGER,
+  
+  FOREIGN KEY(belongs_to_id) REFERENCES wishlist(id)
+
 );
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-SELECT
-    'down SQL query';
+DROP TABLE user;
+DROP TABLE wishlist;
+DROP TABLE product;
 -- +goose StatementEnd

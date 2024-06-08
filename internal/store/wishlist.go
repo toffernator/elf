@@ -51,7 +51,7 @@ func (s *Wishlist) ReadByOwner(ctx context.Context, id int) (ws []core.Wishlist,
 }
 
 func (s *Wishlist) readProducts(ctx context.Context, id int) (ps []core.Product, err error) {
-	err = s.db.SelectContext(ctx, &ps, `SELECT * FROM wishlist WHERE belongs_to_id = $1`, id)
+	err = s.db.SelectContext(ctx, &ps, `SELECT * FROM product WHERE belongs_to_id = $1`, id)
 	return
 }
 
