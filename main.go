@@ -26,7 +26,6 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
-
 	cfg := config.MustLoadConfig()
 
 	var sessionStore = sessions.NewCookieStore([]byte(os.Getenv("GORILLA_SESSIONS_SECRET")))
@@ -50,6 +49,11 @@ func main() {
 	wishlists := store.NewWishlist(db)
 	users := store.NewUser(db)
 
+	services := handlers.Services{
+		WlCreator: wishlists,
+		WlReader:  wishlists,
+	}
+
 	router := chi.NewMux()
 
 	router.Use(chiMiddleware.Logger)
@@ -58,7 +62,7 @@ func main() {
 
 	router.Handle("/*", public())
 	router.Get("/", handlers.Make(handlers.Index))
-	router.Get("/home", handlers.Make(handlers.HandleHome))
+	router.Get("/home", handlers.Make(services.HandleHome))
 	router.Get("/login", handlers.Make(handlers.Login(authenticator, secureCookies, cfg.OAuth.StateLength, cfg.OAuth.StateCookieName)))
 	router.Get("/login/callback", handlers.Make(handlers.LoginCallback(authenticator, sessionStore, secureCookies, users, cfg.OAuth.StateCookieName, cfg.Auth.SessionCookieName, cfg.Auth.SessionCookieUserKey, cfg.Auth0.SessionCookieAccessTokenKey)))
 	router.Get("/logout", handlers.Make(handlers.Logout(authenticator, cfg.Auth0.LogoutCallbackUrl)))
