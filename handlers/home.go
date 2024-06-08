@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"context"
 	"elf/internal/config"
-	"elf/internal/core"
 	"elf/middleware"
 	"elf/views/components"
 	"elf/views/home"
@@ -38,10 +36,6 @@ func Home(cfg *config.Config, srvcs *HomeServices) HTTPHandler {
 
 		return Render(w, r, home.Index(ws))
 	}
-}
-
-type WishlistReader interface {
-	ReadByOwner(ctx context.Context, id int) (ws []core.Wishlist, err error)
 }
 
 type HomeServices struct {

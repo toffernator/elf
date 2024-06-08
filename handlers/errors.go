@@ -21,6 +21,13 @@ func InvalidQueryParameters(errors map[string]string) ApiError {
 	}
 }
 
+func MalformedUrl(errors map[string]string) ApiError {
+	return ApiError{
+		StatusCode: http.StatusBadRequest,
+		Msg:        errors,
+	}
+}
+
 func Unauthenticated() ApiError {
 	return ApiError{
 		StatusCode: http.StatusUnauthorized,

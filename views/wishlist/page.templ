@@ -1,0 +1,12 @@
+package wishlist
+
+import "elf/views/layouts"
+import "elf/internal/core"
+
+templ Page(w core.Wishlist) {
+@layouts.Base() {
+<main>
+    { w.Name }
+</main>
+}
+}

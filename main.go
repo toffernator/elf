@@ -155,9 +155,12 @@ func main() {
 	router.Get("/logout/callback", handlers.Make(handlers.LogoutCallback(cfg, handlerAuthServices)))
 
 	handlerWishlistServices := &handlers.WishlistServices{
-		Wishlists: services.Wishlists,
+		WishlistCreator: services.Wishlists,
+		WishlistReader:  services.Wishlists,
 	}
 	router.Post("/wishlist", handlers.Make(handlers.NewWishlist(cfg, handlerWishlistServices)))
+	router.Get("/wishlist/{id}", handlers.Make(handlers.GetWishlist(cfg, handlerWishlistServices)))
+	router.Get("/wishlist/{id}/page", handlers.Make(handlers.GetWishlistPage(cfg, handlerWishlistServices)))
 
 	router.Get("/ping", handlers.Make(handlers.Ping))
 	router.Get("/teapot", handlers.Make(handlers.IAmATeapot))

@@ -40,29 +40,31 @@ templ addWishlistComponent() {
 
 templ Index(ws []core.Wishlist) {
 	@layouts.Base() {
-		<div id="wishlists" class="flex flex-wrap gap-2 items-stretch">
-			for _, w := range ws {
-				<span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
-					<h2 class="text">{ w.Name }</h2>
-					if w.Image.Valid {
-						<img src={ w.Image.String }/>
-					} else {
-						<img
-							src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthumbs.dreamstime.com%2Fb%2Fwish-list-decorative-type-lettering-design-53494547.jpg&f=1&nofb=1&ipt=c1ef9d347772fe9720cb3855c4e01f3a7cfdb0761cb0a3f136164b8bd804f68c&ipo=images"
-						/>
-					}
+		<main>
+			<div id="wishlists" class="flex flex-wrap gap-2 items-stretch">
+				for _, w := range ws {
+					<span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
+						<h2 class="text">{ w.Name }</h2>
+						if w.Image.Valid {
+							<img src={ w.Image.String }/>
+						} else {
+							<img
+								src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthumbs.dreamstime.com%2Fb%2Fwish-list-decorative-type-lettering-design-53494547.jpg&f=1&nofb=1&ipt=c1ef9d347772fe9720cb3855c4e01f3a7cfdb0761cb0a3f136164b8bd804f68c&ipo=images"
+							/>
+						}
+					</span>
+				}
+				<span
+					id="add-wishlist"
+					class="flex flex-col items-center justify-stretch w-36 border border-gray-200"
+					hx-get="?openModal=newWishlist"
+					hx-target="main"
+					hx-swap="beforeend"
+				>
+					<h2 class="">Add a Wishlist</h2>
+					@bootstrapIconComponent("bi bi-plus-lg")
 				</span>
-			}
-			<span
-				id="add-wishlist"
-				class="flex flex-col items-center justify-stretch w-36 border border-gray-200"
-				hx-get="?openModal=newWishlist"
-				hx-target="main"
-				hx-swap="beforeend"
-			>
-				<h2 class="">Add a Wishlist</h2>
-				@bootstrapIconComponent("bi bi-plus-lg")
-			</span>
-		</div>
+			</div>
+		</main>
 	}
 }

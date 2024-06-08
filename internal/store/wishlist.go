@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"elf/internal/core"
-	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -18,7 +17,8 @@ func NewWishlist(db *sqlx.DB) *Wishlist {
 }
 
 func (s *Wishlist) ReadById(ctx context.Context, id int) (w core.Wishlist, err error) {
-	return w, errors.New("Not yet implemented")
+	err = s.db.GetContext(ctx, &w, "SELECT * FROM wishlist WHERE id = $1", id)
+	return
 }
 
 func (s *Wishlist) ReadByOwner(ctx context.Context, id int) (ws []core.Wishlist, err error) {
