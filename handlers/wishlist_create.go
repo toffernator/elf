@@ -61,8 +61,13 @@ func (r *CreateWishlistRequest) parse() error {
 		return err
 	}
 	if err := decoder.Decode(&r.Data, r.R.Form); err != nil {
+		if es, ok := err.(form.DecodeErrors); ok {
+			return DecoderErrors(es)
+		}
+
 		return err
 	}
+
 	owner, err := middleware.GetUser(r.R.Context())
 	if err != nil {
 		return err

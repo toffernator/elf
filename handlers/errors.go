@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-playground/form"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -38,6 +39,13 @@ func ValidationErrors(errors map[Field]FieldError) ApiError {
 }
 
 func ValidatioNErrors2(es validator.ValidationErrors) ApiError {
+	return ApiError{
+		StatusCode: http.StatusUnprocessableEntity,
+		Msg:        es,
+	}
+}
+
+func DecoderErrors(es form.DecodeErrors) ApiError {
 	return ApiError{
 		StatusCode: http.StatusUnprocessableEntity,
 		Msg:        es,
