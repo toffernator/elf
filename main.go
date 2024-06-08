@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -163,4 +164,5 @@ func main() {
 
 	listenAddr := cfg.ListenAddr
 	slog.Info("HTTP server started", "listenAddr", listenAddr)
+	http.ListenAndServe(cfg.ListenAddr, router)
 }
