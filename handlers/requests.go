@@ -1,58 +1,34 @@
 package handlers
 
 import (
-	"net/http"
+	"net/url"
 
+	"github.com/go-playground/form"
 	"github.com/go-playground/validator/v10"
 )
 
 var validate *validator.Validate = validator.New(validator.WithRequiredStructEnabled())
 
-type ApiRequest interface {
-	R() *http.Request
-	Values() (map[string]interface{}, error)
-	Validate() error
-}
-
-type PathValueExtractor func(r *http.Request) (map[string]interface{}, error)
-
-type apiRequest struct {
-	r                  *http.Request
-	pathValueExtractor PathValueExtractor
-}
-
-func NewApiRequest(r *http.Request, p PathValueExtractor) *apiRequest {
-	return &apiRequest{r: r, pathValueExtractor: p}
-
-}
-
-func (r *apiRequest) R() *http.Request {
-	return r.r
-}
-
-func (r *apiRequest) Values() (vs map[string]interface{}, err error) {
-	vs, err = r.pathValueExtractor(r.R())
+// Validate will transform validator.ValidateErrors into an ApiError
+func Validate(data interface{}) error {
+	err := validate.Struct(data)
 	if err != nil {
-		return vs, err
-	}
-
-	err = r.R().ParseForm()
-	if err != nil {
-		return vs, err
-	}
-	for k := range r.R().Form {
-		v := r.R().Form.Get(k)
-		vs[k] = v
-	}
-
-	return vs, nil
-}
-
-func (r *apiRequest) Validate(rules map[string]interface{}) (err error) {
-	_, err = r.Values()
-	if err != nil {
+		if es, ok := err.(validator.ValidationErrors); ok {
+			return ValidationErrors2(es)
+		}
 		return err
 	}
 
+	return nil
+}
+
+func Parse(dst interface{}, values url.Values) error {
+	if err := decoder.Decode(dst, values); err != nil {
+		if es, ok := err.(form.DecodeErrors); ok {
+			return DecoderErrors(es)
+		}
+
+		return err
+	}
 	return nil
 }

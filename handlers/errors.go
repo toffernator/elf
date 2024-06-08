@@ -38,7 +38,7 @@ func ValidationErrors(errors map[Field]FieldError) ApiError {
 	}
 }
 
-func ValidatioNErrors2(es validator.ValidationErrors) ApiError {
+func ValidationErrors2(es validator.ValidationErrors) ApiError {
 	return ApiError{
 		StatusCode: http.StatusUnprocessableEntity,
 		Msg:        es,
