@@ -16,16 +16,7 @@ var decoder *form.Decoder = form.NewDecoder()
 func NewWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		req := NewCreateWishlistRequest(r)
-		values, err := req.Parse()
-		if err != nil {
-			return err
-		}
-		err = Parse(&req.Data, values)
-		if err != nil {
-			return err
-		}
-
-		err = Validate(req.Data)
+		err := req.Validate()
 		if err != nil {
 			return err
 		}
@@ -52,7 +43,25 @@ func NewCreateWishlistRequest(r *http.Request) *CreateWishlistRequest {
 	return &CreateWishlistRequest{R: r}
 }
 
-func (r *CreateWishlistRequest) Parse() (values url.Values, err error) {
+func (r *CreateWishlistRequest) Validate() (err error) {
+	values, err := r.parse()
+	if err != nil {
+		return err
+	}
+	err = Parse(&r.Data, values)
+	if err != nil {
+		return err
+	}
+
+	err = Validate(r.Data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *CreateWishlistRequest) parse() (values url.Values, err error) {
 	err = r.R.ParseForm()
 	if err != nil {
 		return values, err

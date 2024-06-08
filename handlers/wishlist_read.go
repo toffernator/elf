@@ -83,7 +83,7 @@ func (r *ReadWishlistRequest) Parse() error {
 	err := validate.Var(idStr, "number")
 	if err != nil {
 		if es, ok := err.(validator.ValidationErrors); ok {
-			return ValidatioNErrors2(es)
+			return ValidationErrors2(es)
 		}
 		return err
 	}
@@ -100,7 +100,7 @@ func (r *ReadWishlistRequest) Validate() error {
 	err := validate.Struct(r.Data)
 	if err != nil {
 		if es, ok := err.(validator.ValidationErrors); ok {
-			return ValidatioNErrors2(es)
+			return ValidationErrors2(es)
 		}
 		return err
 	}
