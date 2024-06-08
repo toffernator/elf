@@ -729,6 +729,10 @@ video {
   border-radius: 0.375rem;
 }
 
+.rounded {
+  border-radius: 0.25rem;
+}
+
 .border {
   border-width: 1px;
 }
@@ -802,6 +806,10 @@ video {
 
 .font-medium {
   font-weight: 500;
+}
+
+.lowercase {
+  text-transform: lowercase;
 }
 
 .tracking-wide {

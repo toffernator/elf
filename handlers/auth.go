@@ -61,15 +61,23 @@ func Login(cfg *config.Config, srvcs *AuthServices) HTTPHandler {
 
 func LoginCallback(cfg *config.Config, srvcs *AuthServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		queryParameterErrors := map[string]string{}
+		es := map[Field]FieldError{}
 		if !r.URL.Query().Has("state") {
-
+			es["state"] = FieldError{
+				Location: QUERY_PARAM_LOCATION,
+				Value:    "",
+				Reason:   "must be set",
+			}
 		}
 		if !r.URL.Query().Has("code") {
-			queryParameterErrors["code"] = ""
+			es["code"] = FieldError{
+				Location: QUERY_PARAM_LOCATION,
+				Value:    "",
+				Reason:   "must be set",
+			}
 		}
-		if len(queryParameterErrors) != 0 {
-			return InvalidQueryParameters(queryParameterErrors)
+		if len(es) > 0 {
+			return ValidationError(es)
 		}
 		state := r.URL.Query().Get("state")
 		code := r.URL.Query().Get("code")

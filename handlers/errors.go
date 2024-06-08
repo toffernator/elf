@@ -14,16 +14,23 @@ func (err ApiError) Error() string {
 	return fmt.Sprintf("%d: %s", err.StatusCode, err.Msg)
 }
 
-func InvalidQueryParameters(errors map[string]string) ApiError {
-	return ApiError{
-		StatusCode: http.StatusBadRequest,
-		Msg:        errors,
-	}
+type Field string
+
+type Location string
+
+const QUERY_PARAM_LOCATION Location = "URL query parameters"
+const PATH_PARAM_LOCATION Location = "URL path parameters"
+const FORM_LOCATION = "form"
+
+type FieldError struct {
+	Location Location
+	Value    any
+	Reason   string
 }
 
-func MalformedUrl(errors map[string]string) ApiError {
+func ValidationError(errors map[Field]FieldError) ApiError {
 	return ApiError{
-		StatusCode: http.StatusBadRequest,
+		StatusCode: http.StatusUnprocessableEntity,
 		Msg:        errors,
 	}
 }

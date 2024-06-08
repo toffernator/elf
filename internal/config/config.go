@@ -2,7 +2,11 @@ package config
 
 import "github.com/kelseyhightower/envconfig"
 
+const DEV = "development"
+const PROD = "production"
+
 type Config struct {
+	Environment  string `envconfig:"ELF_ENVIRONMENT" required:"true"`
 	ListenAddr   string `envconfig:"ELF_LISTEN_ADDR" default:":4000"`
 	SecureCookie SecureCookie
 	Session      Session
@@ -10,6 +14,14 @@ type Config struct {
 	Auth         Auth
 	OAuth        OAuth
 	Auth0        Auth0
+}
+
+func (c Config) IsDevelop() bool {
+	return c.Environment == DEV
+}
+
+func (c Config) IsProduction() bool {
+	return c.Environment == PROD
 }
 
 type SecureCookie struct {

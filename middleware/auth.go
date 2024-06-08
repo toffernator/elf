@@ -29,9 +29,13 @@ func AddUserToContext(cfg *config.Config, srvcs *AuthServices) MiddlewareFunc {
 		}
 
 		user, ok := session.Values[cfg.Auth.SessionCookieUserKey].(core.User)
-		if !ok {
+		if !ok && cfg.IsProduction() {
 			// TODO: better error
 			return errors.New("Cannot cast the user in the session to an auth.AuthenticatedUser")
+		} else if !ok && cfg.IsDevelop() {
+			user = core.User{
+				Id: 1,
+			}
 		}
 
 		ctxWithUser := context.WithValue(r.Context(), UserKey, user)
