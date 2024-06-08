@@ -11,18 +11,17 @@ import (
 )
 
 var validate *validator.Validate = validator.New(validator.WithRequiredStructEnabled())
-var decoder *form.Decoder
+var decoder *form.Decoder = form.NewDecoder()
 
 func NewWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		r.ParseForm()
-
-		owner, err := middleware.GetUser(r.Context())
+		req := NewCreateWishlistRequest(r)
+		err := req.Init()
 		if err != nil {
 			return err
 		}
 
-		wl, err := srvcs.WishlistCreator.Create(r.FormValue("name"), owner.Id)
+		wl, err := srvcs.WishlistCreator.Create(req.Data.Name, req.Data.OwnerId)
 		if err != nil {
 			return err
 		}
@@ -53,6 +52,11 @@ func (r *CreateWishlistRequest) Init() error {
 	if err := decoder.Decode(&r.Data, r.R.Form); err != nil {
 		return err
 	}
+	owner, err := middleware.GetUser(r.R.Context())
+	if err != nil {
+		return err
+	}
+	r.Data.OwnerId = owner.Id
 
 	// Mold
 
