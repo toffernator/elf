@@ -14,9 +14,21 @@ in {
   languages.go.enable = true;
 
   scripts = {
-    create-migration = {
+    db_create-migration = {
       exec = ''
         ${pkgs.goose}/bin/goose create $1 sql
+      '';
+    };
+
+    db_up = {
+      exec = ''
+        ${pkgs.goose}/bin/goose up
+      '';
+    };
+
+    db_up-one = {
+      exec = ''
+        ${pkgs.goose}/bin/goose up-by-one
       '';
     };
 
