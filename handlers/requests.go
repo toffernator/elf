@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -50,14 +49,10 @@ func (r *apiRequest) Values() (vs map[string]interface{}, err error) {
 }
 
 func (r *apiRequest) Validate(rules map[string]interface{}) (err error) {
-	vs, err := r.Values()
+	_, err = r.Values()
 	if err != nil {
 		return err
 	}
 
-	es := validate.ValidateMap(vs, rules)
-
 	return nil
 }
-
-func Foo(es map[string]interface{})

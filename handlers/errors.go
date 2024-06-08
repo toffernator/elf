@@ -3,6 +3,8 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type ApiError struct {
@@ -32,6 +34,13 @@ func ValidationErrors(errors map[Field]FieldError) ApiError {
 	return ApiError{
 		StatusCode: http.StatusUnprocessableEntity,
 		Msg:        errors,
+	}
+}
+
+func ValidatioNErrors2(es validator.ValidationErrors) ApiError {
+	return ApiError{
+		StatusCode: http.StatusUnprocessableEntity,
+		Msg:        es,
 	}
 }
 
