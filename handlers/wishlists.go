@@ -29,6 +29,100 @@ func NewWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	}
 }
 
+func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		readWishlistRequest := NewReadWishlistRequest(r)
+		err := readWishlistRequest.Validate()
+		if err != nil {
+			return err
+		}
+
+		wl, err := srvcs.WishlistReader.ReadById(readWishlistRequest.r.Context(), readWishlistRequest.Id)
+		if err != nil {
+			return err
+		}
+
+		return Render(w, r, components.Wishlist(wl))
+	}
+}
+
+func PatchWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		req := NewUpdateWishlistRequest(r)
+
+		_, err := srvcs.WishlistUpdater.AddProduct(req.Context(), req.Id, req.Product)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+}
+
+type UpdateWishlistRequest struct {
+	*http.Request
+
+	Id      int
+	Product core.Product
+}
+
+func NewUpdateWishlistRequest(r *http.Request) *UpdateWishlistRequest {
+	return &UpdateWishlistRequest{
+		Request: r,
+	}
+}
+
+func (r *UpdateWishlistRequest) Validate() error {
+	errors := make(map[string]string, 0)
+
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		errors["id"] = err.Error()
+	}
+	if len(errors) > 0 {
+		return MalformedUrl(errors)
+	}
+	r.Id = id
+
+	err = r.ParseForm()
+	if err != nil {
+		return err
+	}
+	errors = make(map[string]string, 0)
+
+	name := r.PostFormValue("name")
+	if name == "" {
+		errors["name"] = "'name' is required"
+	}
+	url := r.PostFormValue("url")
+	if url == "" {
+		errors["url"] = "'url' is required"
+	}
+	priceStr := r.PostFormValue("price")
+	if priceStr == "" {
+		errors["price"] = "'price' is required"
+	}
+	price, err := strconv.Atoi(priceStr)
+	if err != nil {
+		errors["price"] = "'price' must be an integer"
+	}
+	currency := r.PostFormValue("currency")
+	if currency == "" {
+		errors["currency"] = "'currency' is required"
+	}
+
+	p := core.Product{
+		Name:     name,
+		Url:      url,
+		Price:    float32(price),
+		Currency: currency,
+	}
+
+	r.Product = p
+	return nil
+}
+
 func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		readWishlistRequest := NewReadWishlistRequest(r)
@@ -52,23 +146,6 @@ func GetWishlistPage(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
 		}
 
 		return Render(w, r, wishlist.Page(wl))
-	}
-}
-
-func GetWishlist(cfg *config.Config, srvcs *WishlistServices) HTTPHandler {
-	return func(w http.ResponseWriter, r *http.Request) error {
-		readWishlistRequest := NewReadWishlistRequest(r)
-		err := readWishlistRequest.Validate()
-		if err != nil {
-			return err
-		}
-
-		wl, err := srvcs.WishlistReader.ReadById(readWishlistRequest.r.Context(), readWishlistRequest.Id)
-		if err != nil {
-			return err
-		}
-
-		return Render(w, r, components.Wishlist(wl))
 	}
 }
 
@@ -100,11 +177,16 @@ func (r *ReadWishlistRequest) Validate() error {
 type WishlistServices struct {
 	WishlistCreator WishlistCreator
 	WishlistReader  WishlistReader
+	WishlistUpdater WishlistUpdater
 }
 
 type WishlistReader interface {
 	ReadById(ctx context.Context, id int) (core.Wishlist, error)
 	ReadByOwner(ctx context.Context, id int) (ws []core.Wishlist, err error)
+}
+
+type WishlistUpdater interface {
+	AddProduct(ctx context.Context, id int, p core.Product) (core.Wishlist, error)
 }
 
 type WishlistCreator interface {

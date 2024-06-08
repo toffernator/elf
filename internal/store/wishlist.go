@@ -16,16 +16,6 @@ func NewWishlist(db *sqlx.DB) *Wishlist {
 	return &Wishlist{db: db}
 }
 
-func (s *Wishlist) ReadById(ctx context.Context, id int) (w core.Wishlist, err error) {
-	err = s.db.GetContext(ctx, &w, "SELECT * FROM wishlist WHERE id = $1", id)
-	return
-}
-
-func (s *Wishlist) ReadByOwner(ctx context.Context, id int) (ws []core.Wishlist, err error) {
-	err = s.db.SelectContext(ctx, &ws, "SELECT * FROM wishlist WHERE owner_id = $1", id)
-	return
-}
-
 func (s *Wishlist) Create(name string, ownerId int, products ...core.Product) (core.Wishlist, error) {
 	wl := core.Wishlist{
 		Name:    name,
@@ -46,4 +36,18 @@ func (s *Wishlist) Create(name string, ownerId int, products ...core.Product) (c
 	wl.Id = int(id)
 
 	return wl, nil
+}
+
+func (s *Wishlist) ReadById(ctx context.Context, id int) (w core.Wishlist, err error) {
+	err = s.db.GetContext(ctx, &w, "SELECT * FROM wishlist WHERE id = $1", id)
+	return
+}
+
+func (s *Wishlist) ReadByOwner(ctx context.Context, id int) (ws []core.Wishlist, err error) {
+	err = s.db.SelectContext(ctx, &ws, "SELECT * FROM wishlist WHERE owner_id = $1", id)
+	return
+}
+
+func (s *Wishlist) AddProduct(ctx context.Context, id int, p core.Product) (w core.Wishlist, err error) {
+	return
 }

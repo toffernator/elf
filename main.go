@@ -157,10 +157,12 @@ func main() {
 	handlerWishlistServices := &handlers.WishlistServices{
 		WishlistCreator: services.Wishlists,
 		WishlistReader:  services.Wishlists,
+		WishlistUpdater: services.Wishlists,
 	}
 	router.Post("/wishlist", handlers.Make(handlers.NewWishlist(cfg, handlerWishlistServices)))
 	router.Get("/wishlist/{id}", handlers.Make(handlers.GetWishlist(cfg, handlerWishlistServices)))
 	router.Get("/wishlist/{id}/page", handlers.Make(handlers.GetWishlistPage(cfg, handlerWishlistServices)))
+	router.Patch("/wishlist/{id}", handlers.Make(handlers.PatchWishlist(cfg, handlerWishlistServices)))
 
 	router.Get("/ping", handlers.Make(handlers.Ping))
 	router.Get("/teapot", handlers.Make(handlers.IAmATeapot))
