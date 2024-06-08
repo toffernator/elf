@@ -9,7 +9,7 @@ in {
   };
 
   # FIXME: Install `templ`.
-  packages = with pkgs; [ git tailwindcss air goose ];
+  packages = with pkgs; [ git tailwindcss air goose sqlite ];
 
   languages.go.enable = true;
 
