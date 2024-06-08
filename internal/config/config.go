@@ -3,11 +3,22 @@ package config
 import "github.com/kelseyhightower/envconfig"
 
 type Config struct {
-	ListenAddr string `envconfig:"ELF_LISTEN_ADDR" default:":4000"`
-	Db         Db
-	Auth       Auth
-	OAuth      OAuth
-	Auth0      Auth0
+	ListenAddr   string `envconfig:"ELF_LISTEN_ADDR" default:":4000"`
+	SecureCookie SecureCookie
+	Session      Session
+	Db           Db
+	Auth         Auth
+	OAuth        OAuth
+	Auth0        Auth0
+}
+
+type SecureCookie struct {
+	HashKey  string `envconfig:"ELF_SECURECOOKIE_HASHKEY" required:"true"`
+	BlockKey string `envconfig:"ELF_SECURECOOKIE_BLOCKKEY" required:"true"`
+}
+
+type Session struct {
+	Secret string `envconfig:"ELF_SESSION_SECRET" required:"true"`
 }
 
 type Auth struct {
@@ -21,12 +32,12 @@ type OAuth struct {
 }
 
 type Auth0 struct {
-	Domain                      string `envconfig:"ELF_AUTH0_DOMAIN"`
-	ClientId                    string `envconfig:"ELF_AUTH0_CLIENT_ID"`
-	ClientSecret                string `envconfig:"ELF_AUTH0_CLIENT_SECRET"`
-	LoginCallbackUrl            string `envconfig:"ELF_AUTH0_LOGIN_CALLBACK_URL"`
-	LogoutCallbackUrl           string `envconfig:"ELF_AUTH0_LOGOUT_CALLBACK_URL"`
-	SessionCookieAccessTokenKey string `envconfig:"ELF_AUTH0_SESSION_COOKIE_ACCESS_TOKEN_KEY"`
+	Domain                      string `envconfig:"ELF_AUTH0_DOMAIN" required:"true"`
+	ClientId                    string `envconfig:"ELF_AUTH0_CLIENT_ID" required:"true"`
+	ClientSecret                string `envconfig:"ELF_AUTH0_CLIENT_SECRET" required:"true"`
+	LoginCallbackUrl            string `envconfig:"ELF_AUTH0_LOGIN_CALLBACK_URL" required:"true"`
+	LogoutCallbackUrl           string `envconfig:"ELF_AUTH0_LOGOUT_CALLBACK_URL" required:"true"`
+	SessionCookieAccessTokenKey string `envconfig:"ELF_AUTH0_SESSION_COOKIE_ACCESS_TOKEN_KEY" required:"true"`
 }
 
 type Db struct {

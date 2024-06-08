@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"elf/internal/config"
 	"elf/internal/core"
 	"errors"
 	"log/slog"
@@ -16,15 +17,20 @@ type contextKey int
 
 const UserKey contextKey = 0
 
-func AddUserToContext(store sessions.Store, sessionCookieName string, sessionCookieUserKey string) MiddlewareFunc {
+type AuthServices struct {
+	Sessions sessions.Store
+}
+
+func AddUserToContext(cfg *config.Config, srvcs *AuthServices) MiddlewareFunc {
 	return func(w http.ResponseWriter, r *http.Request, next http.Handler) error {
-		session, err := store.Get(r, sessionCookieName)
+		session, err := srvcs.Sessions.Get(r, cfg.Auth.SessionCookieName)
 		if err != nil {
 			return err
 		}
 
-		user, ok := session.Values[sessionCookieUserKey].(core.User)
+		user, ok := session.Values[cfg.Auth.SessionCookieUserKey].(core.User)
 		if !ok {
+			// TODO: better error
 			return errors.New("Cannot cast the user in the session to an auth.AuthenticatedUser")
 		}
 
@@ -40,6 +46,7 @@ func GetUser(ctx context.Context) (core.User, error) {
 	if user, ok := ctx.Value(UserKey).(core.User); ok {
 		return user, nil
 	}
+	// TODO: Better (api) error
 	return core.User{}, errors.New("Unauthenticated")
 }
 
