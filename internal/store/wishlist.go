@@ -40,6 +40,8 @@ func (s *Wishlist) Create(name string, ownerId int, products ...core.Product) (c
 
 func (s *Wishlist) ReadById(ctx context.Context, id int) (w core.Wishlist, err error) {
 	err = s.db.GetContext(ctx, &w, "SELECT * FROM wishlist WHERE id = $1", id)
+	products, err := s.readProducts(ctx, id)
+	w.Products = products
 	return
 }
 
@@ -48,6 +50,16 @@ func (s *Wishlist) ReadByOwner(ctx context.Context, id int) (ws []core.Wishlist,
 	return
 }
 
-func (s *Wishlist) AddProduct(ctx context.Context, id int, p core.Product) (w core.Wishlist, err error) {
+func (s *Wishlist) readProducts(ctx context.Context, id int) (ps []core.Product, err error) {
+	err = s.db.SelectContext(ctx, &ps, `SELECT * FROM wishlist WHERE belongs_to_id = $1`, id)
 	return
+}
+
+func (s *Wishlist) AddProduct(ctx context.Context, id int, p core.Product) (w core.Wishlist, err error) {
+	_, err = s.db.NamedExecContext(ctx, `INSERT INTO product (name, url, price, currency, belongs_to_id)`, p)
+	if err != nil {
+		return w, err
+	}
+
+	return w, err
 }

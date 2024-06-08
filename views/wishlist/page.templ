@@ -39,7 +39,7 @@ templ Page(w core.Wishlist) {
         for _, p := range w.Products {
         <li>{ p.Name }</li>
         }
-        <li id="add-product" class="flex flex-col items-center justify-stretch w-36 border border-gray-200"
+        <li id="add-product" class="flex flex-col items-center justify-stretch w-36 border border-gray-cw00"
             hx-get="?openModal=addProduct" hx-target="main" hx-swap="beforeend">
             <h2 class="">Add a Product</h2>
             @components.Icon("bi bi-plus-lg")

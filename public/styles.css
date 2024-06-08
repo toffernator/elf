@@ -592,8 +592,16 @@ video {
   position: static;
 }
 
+.fixed {
+  position: fixed;
+}
+
 .absolute {
   position: absolute;
+}
+
+.relative {
+  position: relative;
 }
 
 .left-0 {
@@ -602,6 +610,10 @@ video {
 
 .top-0 {
   top: 0px;
+}
+
+.isolate {
+  isolation: isolate;
 }
 
 .z-10 {
@@ -621,12 +633,28 @@ video {
   margin-right: auto;
 }
 
+.block {
+  display: block;
+}
+
+.inline {
+  display: inline;
+}
+
 .flex {
   display: flex;
 }
 
 .inline-flex {
   display: inline-flex;
+}
+
+.table {
+  display: table;
+}
+
+.contents {
+  display: contents;
 }
 
 .h-full {
@@ -643,6 +671,14 @@ video {
 
 .w-full {
   width: 100%;
+}
+
+.transform {
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.resize {
+  resize: both;
 }
 
 .flex-col {
@@ -787,6 +823,10 @@ video {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
 .transition-colors {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -795,6 +835,18 @@ video {
 
 .duration-200 {
   transition-duration: 200ms;
+}
+
+.\[i\:j\] {
+  i: j;
+}
+
+.\[nil\:\<nil\>\] {
+  nil: <nil>;
+}
+
+.\[one\:1\] {
+  one: 1;
 }
 
 .hover\:bg-neutral-900:hover {

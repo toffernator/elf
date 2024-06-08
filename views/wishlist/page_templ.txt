@@ -3,5 +3,5 @@
 <main><ul id=\"products\">
 <li>
 </li>
-<li id=\"add-product\" class=\"flex flex-col items-center justify-stretch w-36 border border-gray-200\" hx-get=\"?openModal=addProduct\" hx-target=\"main\" hx-swap=\"beforeend\"><h2 class=\"\">Add a Product</h2>
+<li id=\"add-product\" class=\"flex flex-col items-center justify-stretch w-36 border border-gray-cw00\" hx-get=\"?openModal=addProduct\" hx-target=\"main\" hx-swap=\"beforeend\"><h2 class=\"\">Add a Product</h2>
 </li></ul></main>

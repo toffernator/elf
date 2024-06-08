@@ -115,7 +115,7 @@ func (r *UpdateWishlistRequest) Validate() error {
 	p := core.Product{
 		Name:     name,
 		Url:      url,
-		Price:    float32(price),
+		Price:    price,
 		Currency: currency,
 	}
 
