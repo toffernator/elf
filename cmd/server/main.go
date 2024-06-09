@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"elf/handlers"
 	"elf/internal/auth"
 	"elf/internal/config"
 	"elf/internal/store"
