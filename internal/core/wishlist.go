@@ -37,16 +37,11 @@ func (w WishlistCreateParams) Validate() (err error) {
 	return ValidationErrorsFromValidatorErrors(errs)
 }
 
-type WishlistReadParams struct {
-	Id      *int64
-	OwnerId *int64
+type WishlistReadByParams struct {
+	OwnerId int64 `validate:"required"`
 }
 
-func (w *WishlistReadParams) IsZero() bool {
-	return w.Id == nil && w.OwnerId == nil
-}
-
-func (w WishlistReadParams) Validate() (err error) {
+func (w WishlistReadByParams) Validate() (err error) {
 	err = validate.Struct(&w)
 	errs, ok := err.(validator.ValidationErrors)
 	if !ok {
@@ -57,10 +52,11 @@ func (w WishlistReadParams) Validate() (err error) {
 }
 
 type WishlistUpdateParams struct {
+	Id       int64 `validate:"required"`
 	OwnerId  *int64
 	Name     *string
 	Image    *string
-	Products *[]ProductCreateParams
+	Products []ProductCreateParams
 }
 
 func (w WishlistUpdateParams) Validate() (err error) {

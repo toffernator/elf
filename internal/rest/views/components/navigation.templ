@@ -1,34 +1,36 @@
 package components
 
-import "elf/middleware"
+import "elf/internal/rest"
 
 func computeHrefFromUserInCtx(ctx context.Context) string {
-if _, err := middleware.GetUser(ctx); err != nil {
-return "/login"
-} else {
-return "/logout"
-}
+	if _, err := rest.GetUser(ctx); err != nil {
+		return "/login"
+	} else {
+		return "/logout"
+	}
 }
 
 templ Navigation() {
-<div class="border-b border-gray-800 py-2">
-  <div class="container mx-auto">
-    <div class="flex justify-between">
-      <h1 class="text-xl">Elf</h1>
-      <div class="flex space-x-12">
-        <div class="space-x-3 flex text-blue-500"></div>
-        <div>
-          <a class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none"
-            href={ templ.SafeURL(computeHrefFromUserInCtx(ctx)) }>
-            if user, err := middleware.GetUser(ctx); err != nil {
-            Login
-            } else {
-            { user.Name }
-            }
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+	<div class="border-b border-gray-800 py-2">
+		<div class="container mx-auto">
+			<div class="flex justify-between">
+				<h1 class="text-xl">Elf</h1>
+				<div class="flex space-x-12">
+					<div class="space-x-3 flex text-blue-500"></div>
+					<div>
+						<a
+							class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none"
+							href={ templ.SafeURL(computeHrefFromUserInCtx(ctx)) }
+						>
+							if user, err := middleware.GetUser(ctx); err != nil {
+								Login
+							} else {
+								{ user.Name }
+							}
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 }

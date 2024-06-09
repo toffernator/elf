@@ -5,15 +5,17 @@ package components
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import "github.com/a-h/templ"
-import "context"
-import "io"
-import "bytes"
+import (
+	"bytes"
+	"context"
+	"elf/internal/rest"
+	"io"
 
-import "elf/middleware"
+	"github.com/a-h/templ"
+)
 
 func computeHrefFromUserInCtx(ctx context.Context) string {
-	if _, err := middleware.GetUser(ctx); err != nil {
+	if _, err := rest.(ctx); err != nil {
 		return "/login"
 	} else {
 		return "/logout"
