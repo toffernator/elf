@@ -56,7 +56,7 @@ const UserKey contextKey = 0
 
 type Server struct {
 	Router chi.Router
-	Config config.Config
+	Config *config.Config
 
 	// TODO: Wrap these in interfaces
 	SecureCookies *securecookie.SecureCookie
@@ -76,6 +76,15 @@ func (s *Server) RegisterRoutes() {
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(60 * time.Second))
+
+	router.Get("/", MakeHandler(s.HandleHome))
+	router.Get("/ping", MakeHandler(Ping))
+	router.Get("/teapot", MakeHandler(IAmATeapot))
+
+	router.Get("/login", MakeHandler(s.Login))
+	router.Get("/login/callback", MakeHandler(s.LoginCallback))
+	router.Get("/logout", MakeHandler(s.Logout))
+	router.Get("/logout/callback", MakeHandler(s.LogoutCallback))
 
 	router.Route("/wishlist", func(r chi.Router) {
 		// TODO: Add EnsureAuthenticated middleware
