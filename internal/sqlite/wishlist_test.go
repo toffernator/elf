@@ -1,8 +1,8 @@
-package store_test
+package sqlite_test
 
 import (
 	"context"
-	"elf/internal/store"
+	"elf/internal/sqlite"
 	"fmt"
 	"testing"
 
@@ -13,7 +13,7 @@ import (
 )
 
 var db = sqlx.MustConnect("sqlite", ":memory:")
-var wls = store.NewWishlist(db)
+var wishlists = sqlite.NewWishlist(db)
 
 var insertUser, _ = db.Preparex(`INSERT INTO user (name)
     VALUES($1)`)
@@ -70,7 +70,7 @@ func TestReadById(t *testing.T) {
 	seed()
 	for _, tt := range readyByIdTests {
 		t.Run(fmt.Sprintf("Read %d", tt.input), func(t *testing.T) {
-			actual, err := wls.ReadById(context.Background(), tt.input)
+			actual, err := wishlists.ReadById(context.Background(), tt.input)
 			if err != nil {
 				t.Errorf("%s failed with error: %v", t.Name(), err)
 				t.FailNow()
