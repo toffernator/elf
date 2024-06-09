@@ -11,7 +11,7 @@ type UserStore struct {
 	db *sqlx.DB
 }
 
-func NewUser(db *sqlx.DB) *UserStore {
+func NewUserStore(db *sqlx.DB) *UserStore {
 	return &UserStore{db}
 }
 

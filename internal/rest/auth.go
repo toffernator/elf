@@ -201,3 +201,5 @@ func GetUser(ctx context.Context) (core.User, error) {
 	// TODO: Better (api) error
 	return core.User{}, errors.New("Unauthenticated")
 }
+
+const UserKey contextKey = 0

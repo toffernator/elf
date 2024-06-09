@@ -52,8 +52,6 @@ func MakeMiddleware(m MiddlewareFunc) func(http.Handler) http.Handler {
 	}
 }
 
-const UserKey contextKey = 0
-
 type Server struct {
 	Router chi.Router
 	Config *config.Config

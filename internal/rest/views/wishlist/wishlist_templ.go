@@ -34,7 +34,7 @@ func Wishlist(w core.Wishlist) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(w.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/wishlist/wishlist.templ`, Line: 9, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/rest/views/wishlist/wishlist.templ`, Line: 9, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -44,15 +44,15 @@ func Wishlist(w core.Wishlist) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if w.Image.Valid {
+		if w.Image != "" {
 			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(w.Image.String)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(w.Image)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/wishlist/wishlist.templ`, Line: 11, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/rest/views/wishlist/wishlist.templ`, Line: 11, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {

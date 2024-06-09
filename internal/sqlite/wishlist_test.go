@@ -13,7 +13,7 @@ import (
 )
 
 var db = sqlx.MustConnect("sqlite", ":memory:")
-var wishlists = sqlite.NewWishlist(db)
+var wishlists = sqlite.NewWishlistStore(db)
 
 var insertUser, _ = db.Preparex(`INSERT INTO user (name)
     VALUES($1)`)

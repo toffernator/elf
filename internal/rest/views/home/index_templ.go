@@ -10,11 +10,9 @@ import "context"
 import "io"
 import "bytes"
 
-import (
-	"elf/internal/core"
-	"elf/views/components"
-	"elf/views/layouts"
-)
+import "elf/internal/core"
+import "elf/internal/rest/views/layouts"
+import "elf/internal/rest/views/components"
 
 func addWishlistComponent() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -71,7 +69,7 @@ func Index(ws []core.Wishlist) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(w.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home/index.templ`, Line: 23, Col: 37}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/rest/views/home/index.templ`, Line: 25, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -81,15 +79,15 @@ func Index(ws []core.Wishlist) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if w.Image.Valid {
+				if w.Image != "" {
 					templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 5)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
-					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(w.Image.String)
+					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(w.Image)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home/index.templ`, Line: 25, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/rest/views/home/index.templ`, Line: 27, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {

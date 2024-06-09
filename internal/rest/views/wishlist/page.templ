@@ -1,16 +1,11 @@
 package wishlist
 
-import "elf/views/layouts"
-import "elf/internal/core"
-import "elf/views/components"
-import "fmt"
-
-/*
-Name string `json:"name"`
-Url string `json:"url"`
-Price float32 `json:"price"`
-Currency string `json:"currency"`
-*/
+import (
+"elf/internal/core"
+"fmt"
+"elf/internal/rest/views/layouts"
+"elf/internal/rest/views/components"
+)
 
 templ Modal(id int) {
 <div id="modal" _="on htmx:afterRequest remove me end">

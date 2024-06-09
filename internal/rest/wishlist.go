@@ -2,6 +2,7 @@ package rest
 
 import (
 	"elf/internal/core"
+	components "elf/internal/rest/views/wishlist"
 	"net/http"
 	"strconv"
 
@@ -21,7 +22,7 @@ func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (e
 		return err
 	}
 
-	_, err = s.Wishlists.Create(r.Context(), core.WishlistCreateParams{
+	wl, err := s.Wishlists.Create(r.Context(), core.WishlistCreateParams{
 		OwnerId: req.OwnerId,
 		Name:    req.Name,
 		Image:   req.Image,
@@ -30,7 +31,7 @@ func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (e
 		return err
 	}
 
-	return Render(w, r, templ.NopComponent)
+	return Render(w, r, components.Wishlist(wl))
 }
 
 type WishlistReadByReq struct {
