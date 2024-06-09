@@ -48,7 +48,11 @@ func (s *Server) HandleWishlistReadBy(w http.ResponseWriter, r *http.Request) (e
 	_, err = s.Wishlists.ReadBy(r.Context(), core.WishlistReadByParams{
 		OwnerId: req.OwnerId,
 	})
+	if err != nil {
+		return err
+	}
 
+	// TODO: Need a component for a collection of wishlists
 	return Render(w, r, templ.NopComponent)
 }
 
@@ -63,9 +67,12 @@ func (s *Server) HandleWishlistRead(w http.ResponseWriter, r *http.Request) (err
 		return err
 	}
 
-	_, err = s.Wishlists.Read(r.Context(), req.Id)
+	wl, err := s.Wishlists.Read(r.Context(), req.Id)
+	if err != nil {
+		return err
+	}
 
-	return Render(w, r, templ.NopComponent)
+	return Render(w, r, components.Wishlist(wl))
 }
 
 func decodeWishlistReadReq(req *WishlistReadReq, r *http.Request) (err error) {
@@ -87,14 +94,14 @@ func (s *Server) HandleWishlistUpdate(w http.ResponseWriter, r *http.Request) (e
 		return err
 	}
 
-	_, err = s.Wishlists.Update(r.Context(), core.WishlistUpdateParams{
+	wl, err := s.Wishlists.Update(r.Context(), core.WishlistUpdateParams{
 		Id: req.Id,
 	})
 	if err != nil {
 		return err
 	}
 
-	return Render(w, r, templ.NopComponent)
+	return Render(w, r, components.Wishlist(wl))
 }
 
 type UpdateWishlistRequest struct {

@@ -107,7 +107,7 @@ type UserService interface {
 type WishlistService interface {
 	Create(ctx context.Context, p core.WishlistCreateParams) (core.Wishlist, error)
 	Read(ctx context.Context, id int64) (core.Wishlist, error)
-	ReadBy(ctx context.Context, p core.WishlistReadByParams) (core.Wishlist, error)
+	ReadBy(ctx context.Context, p core.WishlistReadByParams) ([]core.Wishlist, error)
 	Update(ctx context.Context, p core.WishlistUpdateParams) (core.Wishlist, error)
 }
 
