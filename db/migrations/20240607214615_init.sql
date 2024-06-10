@@ -2,7 +2,6 @@
 -- +goose StatementBegin
 CREATE TABLE user (
   id INTEGER PRIMARY KEY,
-  sub TEXT,
   name TEXT
 );
 
@@ -20,7 +19,7 @@ CREATE TABLE product (
   name TEXT,
   url TEXT,
   price INTEGER,
-  currency TEXT,
+  currency INTEGER,
   belongs_to_id INTEGER,
   
   FOREIGN KEY(belongs_to_id) REFERENCES wishlist(id)

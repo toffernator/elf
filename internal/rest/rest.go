@@ -5,6 +5,7 @@ import (
 	"elf/internal/auth/auth0"
 	"elf/internal/config"
 	"elf/internal/core"
+	"encoding/gob"
 	"log/slog"
 	"net/http"
 	"time"
@@ -16,6 +17,10 @@ import (
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 )
+
+func init() {
+	gob.Register(core.User{})
+}
 
 var validate *validator.Validate = validator.New(validator.WithRequiredStructEnabled())
 
@@ -72,8 +77,17 @@ func (s *Server) RegisterRoutes() {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
+	if s.Config.IsDevelop() {
+		router.Use(MakeMiddleware(func(w http.ResponseWriter, r *http.Request, next http.Handler) error {
+			next.ServeHTTP(w, r)
+			w.Header().Set("Cache-Control", "no-cache")
+			return nil
+		}))
+	}
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(60 * time.Second))
+
+	router.Use(MakeMiddleware(s.AddUserToContext))
 
 	router.Get("/", MakeHandler(s.HandleHome))
 	router.Get("/ping", MakeHandler(Ping))

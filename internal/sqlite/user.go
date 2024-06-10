@@ -1,11 +1,16 @@
 package sqlite
 
 import (
+	"context"
 	"elf/internal/core"
-	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 )
+
+type User struct {
+	Id   int64  `db:"id"`
+	Name string `db:"name"`
+}
 
 type UserStore struct {
 	db *sqlx.DB
@@ -15,15 +20,8 @@ func NewUserStore(db *sqlx.DB) *UserStore {
 	return &UserStore{db}
 }
 
-func (s *UserStore) Create(sub string, name string) (u core.User, err error) {
-	slog.Info("Called with", "sub", sub, "name", name)
-
-	u = core.User{
-		Name: name,
-	}
-
-	res, err := s.db.NamedExec(`INSERT INTO user (sub, name)
-  VALUES (:sub, :name)`, u)
+func (s *UserStore) Create(ctx context.Context, p core.UserCreateParams) (u core.User, err error) {
+	res, err := s.db.NamedExec(`INSERT INTO user (sub, name) VALUES (:Name)`, u)
 	if err != nil {
 		return u, err
 	}
@@ -35,4 +33,16 @@ func (s *UserStore) Create(sub string, name string) (u core.User, err error) {
 	u.Id = id
 
 	return u, nil
+}
+
+func (s *UserStore) Read(ctx context.Context, id int64) (c core.User, err error) {
+	var u User
+	s.db.GetContext(ctx, &u, `SELECT * FROM user WHERE id = $1`, id)
+
+	c = core.User{
+		Id:   u.Id,
+		Name: u.Name,
+	}
+
+	return
 }

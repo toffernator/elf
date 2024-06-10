@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -172,24 +173,32 @@ func (s *Server) LogoutCallback(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *Server) AddUserToContext(w http.ResponseWriter, r *http.Request, next http.Handler) error {
-	session, err := s.Sessions.Get(r, s.Config.Auth.SessionCookieName)
-	if err != nil {
-		return err
-	}
-
-	user, ok := session.Values[s.Config.Auth.SessionCookieUserKey].(core.User)
-	if !ok && s.Config.IsProduction() {
-		// TODO: better error
-		return errors.New("Cannot cast the user in the session to an auth.AuthenticatedUser")
-	} else if !ok && s.Config.IsDevelop() {
-		user = core.User{
-			Id: 1,
+	if !s.Config.IsDevelop() {
+		session, err := s.Sessions.Get(r, s.Config.Auth.SessionCookieName)
+		if err != nil {
+			return err
 		}
-	}
 
-	ctxWithUser := context.WithValue(r.Context(), UserKey, user)
-	rWithUser := r.WithContext(ctxWithUser)
-	next.ServeHTTP(w, rWithUser)
+		user, ok := session.Values[s.Config.Auth.SessionCookieUserKey].(core.User)
+		if !ok {
+			// TODO: better error
+			return errors.New("Cannot cast the user in the session to an auth.AuthenticatedUser")
+		}
+
+		ctxWithUser := context.WithValue(r.Context(), UserKey, user)
+		rWithUser := r.WithContext(ctxWithUser)
+		next.ServeHTTP(w, rWithUser)
+	} else {
+		user := core.User{
+			Id:   1,
+			Name: "Dev User",
+		}
+		ctxWithUser := context.WithValue(r.Context(), UserKey, user)
+		rWithUser := r.WithContext(ctxWithUser)
+		slog.Warn("AddUserToContext injected development user", "user", user)
+
+		next.ServeHTTP(w, rWithUser)
+	}
 
 	return nil
 }

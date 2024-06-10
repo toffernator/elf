@@ -6,9 +6,9 @@ import (
 	"elf/internal/config"
 	"elf/internal/rest"
 	"elf/internal/service"
+	"elf/internal/sqlite"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -22,9 +22,7 @@ import (
 )
 
 func ConfigureLogger(cfg config.Config) {
-	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-		AddSource: true,
-	}))
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{}))
 	slog.SetDefault(logger)
 }
 
@@ -58,23 +56,26 @@ func ConfigureDb(cfg config.Db) (*sqlx.DB, error) {
 	return db, err
 }
 
-func ConfigureWishlistStore(db *sqlx.DB) *service.WishlistStore {
-	// return sqlite.NewWishlistStore(db)
-	return nil
+func ConfigureWishlistStore(db *sqlx.DB) service.WishlistStore {
+	return sqlite.NewWishlistStore(db)
 }
 
-func ConfigureUserStore(db *sqlx.DB) *service.UserStore {
-	// return sqlite.NewUserStore(db)
-	return nil
+func ConfigureUserStore(db *sqlx.DB) service.UserStore {
+	return sqlite.NewUserStore(db)
 }
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	cfg := config.MustLoadConfig()
 
 	ConfigureLogger(*cfg)
+
+	db, err := ConfigureDb(cfg.Db)
+	if err != nil {
+		panic(err)
+	}
 
 	s := rest.Server{
 		Config: cfg,
@@ -95,9 +96,9 @@ func main() {
 			return a
 		}(),
 
-		Wishlists: nil,
+		Wishlists: service.NewWishlistService(sqlite.NewWishlistStore(db)),
 		Products:  nil,
-		Users:     nil,
+		Users:     service.NewUserService(sqlite.NewUserStore(db)),
 	}
 
 	s.RegisterRoutes()
@@ -106,4 +107,6 @@ func main() {
 	listenAddr := cfg.ListenAddr
 	slog.Info("HTTP server started", "listenAddr", listenAddr)
 	http.ListenAndServe(cfg.ListenAddr, s.Router)
+	for {
+	}
 }

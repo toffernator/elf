@@ -35,7 +35,7 @@ type ValidationErrors struct {
 func ValidationErrorsFromValidatorErrors(errs validator.ValidationErrors) *ValidationErrors {
 	vs := make([]ValidationError, len(errs))
 	for i, err := range errs {
-		vs[i] = *NewValidationError(err.Namespace(), err.Param(), err.Error())
+		vs[i] = *NewValidationError(err.StructField(), err.Param(), err.Error())
 	}
 	return &ValidationErrors{vs}
 }

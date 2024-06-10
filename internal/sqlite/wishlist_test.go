@@ -40,12 +40,12 @@ func seed() {
 		panic(fmt.Errorf("Insert wishlist panic: %w", err))
 	}
 
-	_, err = insertProduct.Exec("iPad", "www.example.com", 100, "eur", 1)
+	_, err = insertProduct.Exec("iPad", "www.example.com", 100, 0, 1)
 	if err != nil {
 		panic(fmt.Errorf("Insert product panic: %w", err))
 	}
 
-	_, err = insertProduct.Exec("Macbook", "www.example.com", 200, "eur", 1)
+	_, err = insertProduct.Exec("Macbook", "www.example.com", 200, 0, 1)
 	if err != nil {
 		panic(fmt.Errorf("Insert product panic: %w", err))
 	}
@@ -53,9 +53,9 @@ func seed() {
 }
 
 var readyByIdTests = []struct {
-	input              int
+	input              int64
 	expectedName       string
-	expectedOwnerId    int
+	expectedOwnerId    int64
 	expectedProductLen int
 }{
 	{
@@ -70,7 +70,7 @@ func TestReadById(t *testing.T) {
 	seed()
 	for _, tt := range readyByIdTests {
 		t.Run(fmt.Sprintf("Read %d", tt.input), func(t *testing.T) {
-			actual, err := wishlists.ReadById(context.Background(), tt.input)
+			actual, err := wishlists.Read(context.Background(), tt.input)
 			if err != nil {
 				t.Errorf("%s failed with error: %v", t.Name(), err)
 				t.FailNow()

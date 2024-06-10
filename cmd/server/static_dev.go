@@ -3,12 +3,12 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 )
 
 func public() http.Handler {
-	fmt.Println("building static files for development")
-	return http.StripPrefix("/public/", http.FileServerFS(os.DirFS("public")))
+	slog.Info("building static files for development")
+	return http.StripPrefix("/public/", http.FileServerFS(os.DirFS("cmd/server/public")))
 }

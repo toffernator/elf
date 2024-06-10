@@ -3,6 +3,7 @@ package rest
 import (
 	"elf/internal/core"
 	components "elf/internal/rest/views/wishlist"
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -17,10 +18,11 @@ type WishlistCreateReq struct {
 
 func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (err error) {
 	var req WishlistCreateReq
-	err = Decode(&req, r)
+	err = decodeWishlistCreateReq(&req, r)
 	if err != nil {
 		return err
 	}
+	slog.Info("HandleWishlistCreate is called", "args", req)
 
 	wl, err := s.Wishlists.Create(r.Context(), core.WishlistCreateParams{
 		OwnerId: req.OwnerId,
@@ -32,6 +34,22 @@ func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (e
 	}
 
 	return Render(w, r, components.Wishlist(wl))
+}
+
+func decodeWishlistCreateReq(req *WishlistCreateReq, r *http.Request) (err error) {
+	err = Decode(&req, r)
+	if err != nil {
+		return err
+	}
+
+	u, err := GetUser(r.Context())
+	if err != nil {
+		return err
+	}
+	slog.Info("decodeWishlistCreateReq got the user from the request's context.", "user", u)
+
+	req.OwnerId = u.Id
+	return
 }
 
 type WishlistReadByReq struct {

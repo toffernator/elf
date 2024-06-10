@@ -9,6 +9,7 @@ import (
 const (
 	CurrencyEur Currency = iota
 	CurrencyChf
+	CurrencyNone
 )
 
 type Product struct {
@@ -43,11 +44,11 @@ func (c Currency) Validate() (err error) {
 
 func (c Currency) validate() *ValidationError {
 	switch c {
-	case CurrencyEur, CurrencyChf:
+	case CurrencyEur, CurrencyChf, CurrencyNone:
 		return nil
 	}
 
-	expectation := fmt.Sprintf("be in the range [%d, %d]", CurrencyEur, CurrencyChf)
+	expectation := fmt.Sprintf("be in the range [%d, %d]", CurrencyEur, CurrencyNone)
 	return NewValidationError("Currency", c, expectation)
 }
 
