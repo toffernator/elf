@@ -12,6 +12,7 @@ type WishlistStore interface {
 	Update(ctx context.Context, p core.WishlistUpdateParams) (core.Wishlist, error)
 }
 
+// TODO: Mock with counterfeiter
 type WishlistService struct {
 	store WishlistStore
 }

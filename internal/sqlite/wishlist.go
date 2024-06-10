@@ -27,6 +27,7 @@ type Product struct {
 	BelongsToId int64         `db:"belongs_to_id"`
 }
 
+// TODO: Mock with counterfeiter
 type WishlistStore struct {
 	db *sqlx.DB
 }

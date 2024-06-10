@@ -23,6 +23,7 @@ var insertWishlist, _ = db.Preparex(`INSERT INTO wishlist (owner_id, name)
 var insertProduct, _ = db.Preparex(`INSERT INTO product (name, url, price, currency, belongs_to_id)
     VALUES($1, $2, $3, $4, $5)`)
 
+// TODO: Use goose to seed the database
 func seed() {
 	goose.SetDialect("sqlite3")
 	err := goose.Up(db.DB, "../../db/migrations")

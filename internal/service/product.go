@@ -9,6 +9,7 @@ type ProductStore interface {
 	Create(ctx context.Context, p core.ProductCreateParams) (core.Product, error)
 }
 
+// TODO: Mock with counterfeiter
 type ProductService struct {
 	store ProductStore
 }

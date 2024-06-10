@@ -12,6 +12,7 @@ type User struct {
 	Name string `db:"name"`
 }
 
+// TODO: Mock with counterfeiter
 type UserStore struct {
 	db *sqlx.DB
 }
