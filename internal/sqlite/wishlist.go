@@ -48,7 +48,7 @@ func (s *WishlistStore) Create(ctx context.Context, p core.WishlistCreateParams)
 		return core.Wishlist{}, fmt.Errorf("Wishlist last insert id error: %w", err)
 	}
 
-	return core.Wishlist{Id: id, OwnerId: p.OwnerId, Name: p.Name}, nil
+	return core.Wishlist{Id: id, OwnerId: p.OwnerId, Name: p.Name, Products: []core.Product{}}, nil
 }
 
 func (s *WishlistStore) Read(ctx context.Context, id int64) (c core.Wishlist, err error) {

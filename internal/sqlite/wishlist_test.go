@@ -2,6 +2,7 @@ package sqlite_test
 
 import (
 	"context"
+	"elf/internal/core"
 	"elf/internal/sqlite"
 	"fmt"
 	"testing"
@@ -10,9 +11,41 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TODO: Tests that are expected to fail (Read non-existent id, create invalid wishlist)
+
 var wishlists = sqlite.NewWishlistStore(db)
 
-var wishlistReadByIdTests = []struct {
+var wishlistCreateTests = []struct {
+	// The expected values is derived from the values of the the input's fields.
+	input core.WishlistCreateParams
+}{
+	{
+		input: core.WishlistCreateParams{
+			OwnerId:  1,
+			Name:     "A wishlist created without products",
+			Products: []core.ProductCreateParams{},
+		},
+	},
+}
+
+func TestWishlistCreate(t *testing.T) {
+	seed()
+	for _, tt := range wishlistCreateTests {
+		t.Run(fmt.Sprintf("Create Wishlist %#v", tt.input), func(t *testing.T) {
+			actual, err := wishlists.Create(context.Background(), tt.input)
+			if err != nil {
+				t.Errorf("%s failed with error: %v", t.Name(), err)
+				t.FailNow()
+			}
+
+			assert.Equal(t, tt.input.Name, actual.Name)
+			assert.Equal(t, tt.input.OwnerId, actual.OwnerId)
+			assert.Len(t, actual.Products, len(tt.input.Products))
+		})
+	}
+}
+
+var wishlistReadTests = []struct {
 	input              int64
 	expectedName       string
 	expectedOwnerId    int64
@@ -38,9 +71,9 @@ var wishlistReadByIdTests = []struct {
 	},
 }
 
-func TestWishlistReadById(t *testing.T) {
+func TestWishlistRead(t *testing.T) {
 	seed()
-	for _, tt := range wishlistReadByIdTests {
+	for _, tt := range wishlistReadTests {
 		t.Run(fmt.Sprintf("Read Wishlist %d", tt.input), func(t *testing.T) {
 			actual, err := wishlists.Read(context.Background(), tt.input)
 			if err != nil {
