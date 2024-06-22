@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"elf/internal/auth/auth0"
 	"elf/internal/core"
+	restcontext "elf/internal/rest_context"
 	"encoding/base64"
 	"errors"
 	"io"
@@ -185,7 +186,7 @@ func (s *Server) AddUserToContext(w http.ResponseWriter, r *http.Request, next h
 			return errors.New("Cannot cast the user in the session to an auth.AuthenticatedUser")
 		}
 
-		ctxWithUser := context.WithValue(r.Context(), UserKey, user)
+		ctxWithUser := context.WithValue(r.Context(), restcontext.UserKey, user)
 		rWithUser := r.WithContext(ctxWithUser)
 		next.ServeHTTP(w, rWithUser)
 	} else {
@@ -193,22 +194,12 @@ func (s *Server) AddUserToContext(w http.ResponseWriter, r *http.Request, next h
 			Id:   1,
 			Name: "Dev User",
 		}
-		ctxWithUser := context.WithValue(r.Context(), UserKey, user)
+		ctxWithUser := context.WithValue(r.Context(), restcontext.UserKey, user)
 		rWithUser := r.WithContext(ctxWithUser)
-		slog.Warn("AddUserToContext injected development user", "user", user)
+		slog.Info("AddUserToContext injected development user", "user", user)
 
 		next.ServeHTTP(w, rWithUser)
 	}
 
 	return nil
 }
-
-func GetUser(ctx context.Context) (core.User, error) {
-	if user, ok := ctx.Value(UserKey).(core.User); ok {
-		return user, nil
-	}
-	// TODO: Better (api) error
-	return core.User{}, errors.New("Unauthenticated")
-}
-
-const UserKey contextKey = 0

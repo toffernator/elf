@@ -11,27 +11,8 @@ import "io"
 import "bytes"
 
 import (
-	"elf/internal/core"
-	"errors"
+	"elf/internal/rest_context"
 )
-
-func GetUser(ctx context.Context) (core.User, error) {
-	if user, ok := ctx.Value(UserKey).(core.User); ok {
-		return user, nil
-	}
-	// TODO: Better (api) error
-	// TODO: Duplication of middleware to avoid import cycle
-	return core.User{}, errors.New("Unauthenticated")
-}
-
-func UnsafeGetUser(ctx context.Context) (u core.User) {
-	u, _ = GetUser(ctx)
-	return
-}
-
-type contextKey int
-
-const UserKey contextKey = 0
 
 func Base() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -50,7 +31,7 @@ func Base() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Navigation(true, UnsafeGetUser(ctx)).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Navigation().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -69,7 +50,7 @@ func Base() templ.Component {
 	})
 }
 
-func Navigation(isAuthenticated bool, u core.User) templ.Component {
+func Navigation() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -86,7 +67,7 @@ func Navigation(isAuthenticated bool, u core.User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 templ.SafeURL = templ.SafeURL(ComputeAuthHref(isAuthenticated))
+		var templ_7745c5c3_Var3 templ.SafeURL = templ.SafeURL(ComputeAuthHref(ctx))
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var3)))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -95,11 +76,11 @@ func Navigation(isAuthenticated bool, u core.User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if isAuthenticated {
+		if u, err := restcontext.GetUser(ctx); err == nil {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(u.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/rest/views/layouts/base.templ`, Line: 63, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/rest/views/layouts/base.templ`, Line: 45, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -122,8 +103,8 @@ func Navigation(isAuthenticated bool, u core.User) templ.Component {
 	})
 }
 
-func ComputeAuthHref(isAuthenticated bool) string {
-	if isAuthenticated {
+func ComputeAuthHref(ctx context.Context) string {
+	if _, err := restcontext.GetUser(ctx); err == nil {
 		return "/logout"
 	}
 

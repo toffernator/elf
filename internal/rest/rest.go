@@ -44,8 +44,6 @@ func MakeHandler(h HTTPHandler) http.HandlerFunc {
 
 type MiddlewareFunc func(w http.ResponseWriter, r *http.Request, next http.Handler) error
 
-type contextKey int
-
 func MakeMiddleware(m MiddlewareFunc) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

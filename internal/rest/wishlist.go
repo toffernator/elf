@@ -3,6 +3,7 @@ package rest
 import (
 	"elf/internal/core"
 	components "elf/internal/rest/views/wishlist"
+	restcontext "elf/internal/rest_context"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -42,7 +43,7 @@ func decodeWishlistCreateReq(req *WishlistCreateReq, r *http.Request) (err error
 		return err
 	}
 
-	u, err := GetUser(r.Context())
+	u, err := restcontext.GetUser(r.Context())
 	if err != nil {
 		return err
 	}

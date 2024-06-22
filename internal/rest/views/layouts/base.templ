@@ -1,81 +1,63 @@
 package layouts
 
 import (
-	"elf/internal/core"
-	"errors"
+"elf/internal/rest_context"
 )
 
-func GetUser(ctx context.Context) (core.User, error) {
-	if user, ok := ctx.Value(UserKey).(core.User); ok {
-		return user, nil
-	}
-	// TODO: Better (api) error
-	// TODO: Duplication of middleware to avoid import cycle
-	return core.User{}, errors.New("Unauthenticated")
-}
-
-func UnsafeGetUser(ctx context.Context) (u core.User) {
-	u, _ = GetUser(ctx)
-	return
-}
-
-type contextKey int
-
-const UserKey contextKey = 0
-
 templ Base() {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<title>Elf</title>
-			<link rel="icon" type="image/x-icon" href="/public/favicon.ico"/>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<link rel="stylesheet" href="/public/styles.css"/>
-			<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-			<script src="https://unpkg.com/alpinejs" defer></script>
-			<script src="https://unpkg.com/htmx.org@1.9.9" defer></script>
-			<script src="https://cdn.jsdelivr.net/gh/gnat/surreal@main/surreal.js"></script>
-			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
-		</head>
-		<body class="antialiased w-full">
-			// TODO: Call this with the correct (dynamic) arguments
-			@Navigation(true, UnsafeGetUser(ctx))
-			{ children... }
-		</body>
-	</html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Elf</title>
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/public/styles.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://unpkg.com/htmx.org@1.9.9" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/gnat/surreal@main/surreal.js"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+</head>
+
+<body class="antialiased w-full">
+    @Navigation()
+    { children... }
+</body>
+
+</html>
 }
 
-templ Navigation(isAuthenticated bool, u core.User) {
-	<div class="border-b border-gray-800 py-2">
-		<div class="container mx-auto">
-			<div class="flex justify-between">
-				<h1 class="text-xl">Elf</h1>
-				<div class="flex space-x-12">
-					<div class="space-x-3 flex text-blue-500"></div>
-					<div>
-						<a
-							class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none"
-							href={ templ.SafeURL(ComputeAuthHref(isAuthenticated)) }
-						>
-							if isAuthenticated {
-								{ u.Name }
-							} else {
-								Login
-							}
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+templ Navigation() {
+<div class="border-b border-gray-800 py-2">
+    <div class="container mx-auto">
+        <div class="flex justify-between">
+            <h1 class="text-xl">Elf</h1>
+            <div class="flex space-x-12">
+                <div class="space-x-3 flex text-blue-500"></div>
+                <div>
+                    <a class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none"
+                        href={ templ.SafeURL(ComputeAuthHref(ctx)) }>
+                        if u, err := restcontext.GetUser(ctx); err == nil {
+                        { u.Name }
+                        } else {
+                        Login
+                        }
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 }
 
-func ComputeAuthHref(isAuthenticated bool) string {
-	if isAuthenticated {
-		return "/logout"
-	}
+func ComputeAuthHref(ctx context.Context) string {
+if _, err := restcontext.GetUser(ctx); err == nil {
+return "/logout"
+}
 
-	return "/login"
+return "/login"
 }
