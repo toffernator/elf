@@ -7,27 +7,12 @@ import (
 	"testing"
 
 	_ "github.com/glebarez/go-sqlite"
-	"github.com/jmoiron/sqlx"
-	"github.com/pressly/goose"
 	"github.com/stretchr/testify/assert"
 )
 
-var db = sqlx.MustConnect("sqlite", ":memory:")
 var wishlists = sqlite.NewWishlistStore(db)
 
-func seed() {
-	goose.SetDialect("sqlite3")
-	err := goose.Up(db.DB, "../../db/migrations")
-	if err != nil {
-		panic(fmt.Errorf("Migrating the database failed with: %w", err))
-	}
-	err = goose.Up(db.DB, "../../db/seeds")
-	if err != nil {
-		panic(fmt.Errorf("Seeding the database failed with: %w", err))
-	}
-}
-
-var readyByIdTests = []struct {
+var wishlistReadByIdTests = []struct {
 	input              int64
 	expectedName       string
 	expectedOwnerId    int64
@@ -53,10 +38,10 @@ var readyByIdTests = []struct {
 	},
 }
 
-func TestReadById(t *testing.T) {
+func TestWishlistReadById(t *testing.T) {
 	seed()
-	for _, tt := range readyByIdTests {
-		t.Run(fmt.Sprintf("Read %d", tt.input), func(t *testing.T) {
+	for _, tt := range wishlistReadByIdTests {
+		t.Run(fmt.Sprintf("Read Wishlist %d", tt.input), func(t *testing.T) {
 			actual, err := wishlists.Read(context.Background(), tt.input)
 			if err != nil {
 				t.Errorf("%s failed with error: %v", t.Name(), err)
