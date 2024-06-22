@@ -15,42 +15,16 @@ import (
 var db = sqlx.MustConnect("sqlite", ":memory:")
 var wishlists = sqlite.NewWishlistStore(db)
 
-var insertUser, _ = db.Preparex(`INSERT INTO user (name)
-    VALUES($1)`)
-
-var insertWishlist, _ = db.Preparex(`INSERT INTO wishlist (owner_id, name)
-    VALUES($1, $2)`)
-var insertProduct, _ = db.Preparex(`INSERT INTO product (name, url, price, currency, belongs_to_id)
-    VALUES($1, $2, $3, $4, $5)`)
-
-// TODO: Use goose to seed the database
 func seed() {
 	goose.SetDialect("sqlite3")
 	err := goose.Up(db.DB, "../../db/migrations")
 	if err != nil {
-		panic(fmt.Errorf("goose.Up error: %w", err))
+		panic(fmt.Errorf("Migrating the database failed with: %w", err))
 	}
-
-	_, err = insertUser.Exec("randy bobandy")
+	err = goose.Up(db.DB, "../../db/seeds")
 	if err != nil {
-		panic(fmt.Errorf("Insert user panic: %w", err))
+		panic(fmt.Errorf("Seeding the database failed with: %w", err))
 	}
-
-	_, err = insertWishlist.Exec(1, "birthday")
-	if err != nil {
-		panic(fmt.Errorf("Insert wishlist panic: %w", err))
-	}
-
-	_, err = insertProduct.Exec("iPad", "www.example.com", 100, 0, 1)
-	if err != nil {
-		panic(fmt.Errorf("Insert product panic: %w", err))
-	}
-
-	_, err = insertProduct.Exec("Macbook", "www.example.com", 200, 0, 1)
-	if err != nil {
-		panic(fmt.Errorf("Insert product panic: %w", err))
-	}
-
 }
 
 var readyByIdTests = []struct {
@@ -61,9 +35,21 @@ var readyByIdTests = []struct {
 }{
 	{
 		input:              1,
-		expectedName:       "birthday",
+		expectedName:       "test wishlist 1 belonging to user with id 1",
+		expectedOwnerId:    1,
+		expectedProductLen: 1,
+	},
+	{
+		input:              2,
+		expectedName:       "test wishlist 2 belonging to user with id 1",
 		expectedOwnerId:    1,
 		expectedProductLen: 2,
+	},
+	{
+		input:              3,
+		expectedName:       "test wishlist 3 belonging to user with id 2",
+		expectedOwnerId:    2,
+		expectedProductLen: 0,
 	},
 }
 
