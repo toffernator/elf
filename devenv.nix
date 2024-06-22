@@ -8,8 +8,7 @@ in {
     GOOSE_MIGRATION_DIR = "db/migrations";
   };
 
-  # FIXME: Install `templ`.
-  packages = with pkgs; [ git tailwindcss air goose sqlite ];
+  packages = with pkgs; [ git tailwindcss socat air goose sqlite templ ];
 
   languages.go.enable = true;
 
@@ -69,19 +68,19 @@ in {
         ${pkgs.gotools}/bin/staticcheck ./...
       '';
     };
-
   };
 
   processes = {
     tailwind-watch = {
       exec = ''
-        ${pkgs.tailwindcss}/bin/tailwindcss -i views/css/app.css -o public/styles.css --watch
+        ${pkgs.tailwindcss}/bin/tailwindcss -i internal/rest/views/css/app.css -o cmd/server/public/styles.css --watch
       '';
+      process-compose.is_tty = true;
     };
 
     templ-watch = {
       exec = ''
-        nix run github:a-h/templ -- generate --watch --proxy http://localhost:4000
+        ${pkgs.templ}/bin/templ generate --watch --proxy http://localhost:4000
       '';
     };
 
@@ -91,5 +90,4 @@ in {
       '';
     };
   };
-
 }
