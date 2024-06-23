@@ -16,6 +16,7 @@ import (
 
 func TestWishlistCreate(t *testing.T) {
 	tests := map[string]struct {
+		// The "expected" wishlist is derived from the params
 		params      core.WishlistCreateParams
 		expectedErr error
 	}{
@@ -62,12 +63,14 @@ func TestWishlistCreate(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
-
 			actualWithProducts, err := wishlists.Read(context.TODO(), actual.Id)
 			require.NoError(t, err)
 
 			require.Equal(t, tt.params.Name, actual.Name)
 			require.Equal(t, tt.params.OwnerId, actual.OwnerId)
+
+			// Assumes that if the length is correct the the products are created
+			// with the correct value.
 			require.Len(t, actualWithProducts.Products, len(tt.params.Products))
 		})
 	}

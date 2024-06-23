@@ -2,39 +2,81 @@ package sqlite_test
 
 import (
 	"context"
+	"elf/internal/core"
 	"elf/internal/sqlite"
-	"fmt"
+	"math"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var users = sqlite.NewUserStore(db)
+func TestUserCreate(t *testing.T) {
+	var tests = map[string]struct {
+		// The "expected" user is derived from the params
+		input       core.UserCreateParams
+		expectedErr error
+	}{
+		"A user": {
+			input:       core.UserCreateParams{Name: "A user"},
+			expectedErr: nil,
+		},
+	}
+	for name, tt := range tests {
+		name := name
+		tt := tt
 
-var userReadByIdTest = []struct {
-	input              int64
-	expectedName       string
-	expectedOwnerId    int64
-	expectedProductLen int
-}{
-	{
-		input:        1,
-		expectedName: "test user 1",
-	},
-}
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-func TestUserReadById(t *testing.T) {
-	seed()
-	for _, tt := range userReadByIdTest {
-		t.Run(fmt.Sprintf("Read User %d", tt.input), func(t *testing.T) {
-			actual, err := users.Read(context.Background(), tt.input)
+			db := setupSqlite(name)
+			users := sqlite.NewUserStore(db)
+			t.Cleanup(func() { db.Close() })
+
+			actual, err := users.Create(context.TODO(), tt.input)
 			if err != nil {
 				t.Errorf("%s failed with error: %v", t.Name(), err)
 				t.FailNow()
 			}
 
-			assert.Equal(t, tt.input, actual.Id)
-			assert.Equal(t, tt.expectedName, actual.Name)
+			require.Equal(t, tt.input.Name, actual.Name)
+		})
+	}
+}
+
+func TestUserRead(t *testing.T) {
+	var tests = map[string]struct {
+		input       int64
+		expected    core.User
+		expectedErr error
+	}{
+		"User with ID 1": {
+			input:       1,
+			expected:    core.User{Id: 1, Name: "test user 1"},
+			expectedErr: nil,
+		},
+		"User with an ID that does not exist": {
+			input:       math.MaxInt64,
+			expectedErr: sqlite.NewEntityDoesNotExistError("user", math.MaxInt64),
+		},
+	}
+	for name, tt := range tests {
+		name := name
+		tt := tt
+
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			db := setupSqlite(name)
+			users := sqlite.NewUserStore(db)
+			t.Cleanup(func() { db.Close() })
+
+			actual, err := users.Read(context.TODO(), tt.input)
+			if err != nil {
+				t.Errorf("%s failed with error: %v", t.Name(), err)
+				t.FailNow()
+			}
+
+			require.Equal(t, tt.expected, actual)
 		})
 	}
 }
