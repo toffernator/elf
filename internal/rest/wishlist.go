@@ -17,6 +17,10 @@ type WishlistCreateReq struct {
 	Image   string `form:"image"`
 }
 
+func (s *Server) HandleWishlistNew(w http.ResponseWriter, r *http.Request) (err error) {
+	return Render(w, r, components.NewWishlist())
+}
+
 func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (err error) {
 	var req WishlistCreateReq
 	err = decodeWishlistCreateReq(&req, r)
