@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"math"
 	"net/http"
 	"time"
 
@@ -191,7 +192,7 @@ func (s *Server) AddUserToContext(w http.ResponseWriter, r *http.Request, next h
 		next.ServeHTTP(w, rWithUser)
 	} else {
 		user := core.User{
-			Id:   1,
+			Id:   math.MaxInt64,
 			Name: "Dev User",
 		}
 		ctxWithUser := context.WithValue(r.Context(), restcontext.UserKey, user)
