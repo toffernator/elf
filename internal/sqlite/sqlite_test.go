@@ -8,7 +8,7 @@ import (
 	"github.com/pressly/goose"
 )
 
-var db = sqlx.MustConnect("sqlite", ":memory:")
+var db = sqlx.MustConnect("sqlite", ":memory:?_pragma=foreign_keys = ON")
 
 var didSeedRun bool = false
 
