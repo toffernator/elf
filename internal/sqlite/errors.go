@@ -4,18 +4,27 @@ import (
 	"fmt"
 )
 
-type Error struct {
-	Msg    string
+type EntityDoesNotExistError struct {
 	Entity string
+	Id     int64
 }
 
-func (e *Error) Error() string {
-	return e.Msg
+func (e *EntityDoesNotExistError) Error() string {
+	return fmt.Sprintf("The %s with the id %d does not exist", e.Entity, e.Id)
 }
 
-func NewEntityDoesNotExistError(entity string, id int64) *Error {
-	return &Error{
-		Msg:    fmt.Sprintf("The %s with the id %d does not exist", entity, id),
+func (e EntityDoesNotExistError) Is(target error) bool {
+	switch err := target.(type) {
+	case *EntityDoesNotExistError:
+		return err.Entity == e.Entity && err.Id == e.Id
+	default:
+		return false
+	}
+}
+
+func NewEntityDoesNotExistError(entity string, id int64) *EntityDoesNotExistError {
+	return &EntityDoesNotExistError{
 		Entity: entity,
+		Id:     id,
 	}
 }

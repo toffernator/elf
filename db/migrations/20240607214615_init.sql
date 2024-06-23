@@ -7,7 +7,7 @@ CREATE TABLE user (
 
 CREATE TABLE wishlist (
   id INTEGER PRIMARY KEY,
-  owner_id INTEGER,
+  owner_id INTEGER NOT NULL,
   name TEXT,
   image BLOB,
 
