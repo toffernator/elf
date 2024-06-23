@@ -21,7 +21,7 @@ func NewUserStore(db *sqlx.DB) *UserStore {
 }
 
 func (s *UserStore) Create(ctx context.Context, p core.UserCreateParams) (u core.User, err error) {
-	res, err := s.db.NamedExec(`INSERT INTO user (sub, name) VALUES (:Name)`, u)
+	res, err := s.db.Exec(`INSERT INTO user (name) VALUES ($1)`, p.Name)
 	if err != nil {
 		return u, err
 	}
@@ -30,8 +30,10 @@ func (s *UserStore) Create(ctx context.Context, p core.UserCreateParams) (u core
 	if err != nil {
 		return u, err
 	}
-	u.Id = id
-
+	u = core.User{
+		Id:   id,
+		Name: p.Name,
+	}
 	return u, nil
 }
 
