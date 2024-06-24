@@ -1,7 +1,7 @@
 <!doctype html><html lang=\"en\"><head><title>Elf</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/public/favicon.ico\"><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link rel=\"stylesheet\" href=\"/public/styles.css\"><script src=\"https://unpkg.com/htmx.org@1.9.9\" defer></script><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css\"></head>
 <body class=\"antialiased w-full\" hx-boost=\"true\">
 </body></html>
-<div class=\"border-b border-gray-800 py-2 mb-2\"><div class=\"container mx-auto\"><div class=\"flex justify-between\"><h1 class=\"text-xl\">Elf</h1><div class=\"flex space-x-12\"><div class=\"space-x-3 flex text-blue-500\"></div><div><a class=\"inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none\" href=\"
+<nav class=\"border-b border-black py-2 mb-2 flex justify-between px-2\"><h1 class=\"text-xl\">Elf</h1><a class=\"inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none\" href=\"
 \">
 Login
-</a></div></div></div></div></div>
+</a></nav>

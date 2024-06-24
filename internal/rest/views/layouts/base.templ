@@ -28,26 +28,17 @@ templ Base() {
 
 templ Navigation() {
 // TODO: use <nav></nav>
-<div class="border-b border-gray-800 py-2 mb-2">
-    <div class="container mx-auto">
-        <div class="flex justify-between">
-            <h1 class="text-xl">Elf</h1>
-            <div class="flex space-x-12">
-                <div class="space-x-3 flex text-blue-500"></div>
-                <div>
-                    <a class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none"
-                        href={ templ.SafeURL(ComputeAuthHref(ctx)) }>
-                        if u, err := restcontext.GetUser(ctx); err == nil {
-                        { u.Name }
-                        } else {
-                        Login
-                        }
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<nav class="border-b border-black py-2 mb-2 flex justify-between px-2">
+    <h1 class="text-xl">Elf</h1>
+    <a class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 rounded-md bg-neutral-950 hover:bg-neutral-900 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 focus:shadow-outline focus:outline-none"
+        href={ templ.SafeURL(ComputeAuthHref(ctx)) }>
+        if u, err := restcontext.GetUser(ctx); err == nil {
+        { u.Name }
+        } else {
+        Login
+        }
+    </a>
+</nav>
 }
 
 func ComputeAuthHref(ctx context.Context) string {

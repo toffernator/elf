@@ -1,2 +1,2 @@
-<main class=\"px-80\">
+<main class=\"px-8 m:mx-80\">
 </main>

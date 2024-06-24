@@ -8,6 +8,8 @@ in {
     GOOSE_MIGRATION_DIR = "db/migrations";
   };
 
+  # TODO: Install prettier-plugin-tailwindcss and use it to sort tailwindcss
+  # classes in templ files.
   packages = with pkgs; [ git tailwindcss socat air goose sqlite templ ];
 
   languages.go.enable = true;
