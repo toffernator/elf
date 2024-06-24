@@ -679,6 +679,15 @@ video {
   width: 66.666667%;
 }
 
+.w-auto {
+  width: auto;
+}
+
+.w-fit {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -722,6 +731,10 @@ video {
 .gap-x-2 {
   -moz-column-gap: 0.5rem;
        column-gap: 0.5rem;
+}
+
+.gap-y-2 {
+  row-gap: 0.5rem;
 }
 
 .space-x-12 > :not([hidden]) ~ :not([hidden]) {
