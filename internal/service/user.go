@@ -10,7 +10,6 @@ type UserStore interface {
 	Read(ctx context.Context, id int64) (core.User, error)
 }
 
-// TODO: Mock with counterfeiter
 type UserService struct {
 	store UserStore
 }
