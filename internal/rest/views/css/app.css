@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-input, button {
+input, button, select {
   @apply border border-black rounded p-0.5
 }

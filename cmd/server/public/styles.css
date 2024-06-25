@@ -756,7 +756,7 @@ video {
   transition-duration: 200ms;
 }
 
-input, button {
+input, button, select {
   border-radius: 0.25rem;
   border-width: 1px;
   --tw-border-opacity: 1;

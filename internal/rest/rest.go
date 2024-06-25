@@ -99,10 +99,13 @@ func (s *Server) RegisterRoutes() {
 	router.Route("/wishlist", func(r chi.Router) {
 		// TODO: Add EnsureAuthenticated middleware
 		r.Post("/", MakeHandler(s.HandleWishlistCreate))
-		// TODO: Return the HTML head in a PWA style
-		r.Get("/new", MakeHandler(s.HandleWishlistNew))
-
 		r.Get("/{id}", MakeHandler(s.HandleWishlistRead))
+
+		r.Get("/new", MakeHandler(s.HandleWishlistNew))
+	})
+
+	router.Route("/product", func(r chi.Router) {
+		r.Get("/new", MakeHandler(s.HandleProductNew))
 	})
 
 	s.Router = router
