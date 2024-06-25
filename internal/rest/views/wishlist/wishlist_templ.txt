@@ -1,6 +1,7 @@
-<span class=\"flex flex-col items-center justify-stretch w-36 border border-gray-200\"><h2 class=\"text\">
-</h2>
-<img src=\"
-\">
-<img src=\"https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthumbs.dreamstime.com%2Fb%2Fwish-list-decorative-type-lettering-design-53494547.jpg&amp;f=1&amp;nofb=1&amp;ipt=c1ef9d347772fe9720cb3855c4e01f3a7cfdb0761cb0a3f136164b8bd804f68c&amp;ipo=images\">
-</span>
+<div class=\"flex flex-col justify-center items-center mb-2\"><img src=\"
+\" alt=\"The wishlist&#39;s cover image.\"><h2 class=\"text-3xl truncate\">
+</h2><span class=\"flex justify-center items-center gap-x-1\"><a class=\"bg-red-500 text-white px-0.5 rounded\">Delete</a> <a class=\"bg-gray-500 text-white px-0.5 rounded\">Edit</a> <a class=\"bg-blue-500 text-white px-0.5 rounded\">Share</a></span></div><ul class=\"w-full grid grid-cols-2 gap-2\">
+<a href=\"
+\" class=\"cursor-pointer\"><li class=\"flex flex-col items-center justify-stretch border min-h-24 border-gray-200\"><h2 class=\"text\">
+</h2></li></a>
+<li class=\"flex flex-col items-center justify-stretch border border-gray-200 min-h-24\"><a href=\"/product/new\"><h2 class=\"\">Add a Product</h2></a></li></ul>

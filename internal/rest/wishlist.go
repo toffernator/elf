@@ -7,8 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-
-	"github.com/a-h/templ"
 )
 
 type WishlistCreateReq struct {
@@ -29,7 +27,7 @@ func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (e
 	}
 	slog.Info("HandleWishlistCreate is called", "args", req)
 
-	wl, err := s.Wishlists.Create(r.Context(), core.WishlistCreateParams{
+	_, err = s.Wishlists.Create(r.Context(), core.WishlistCreateParams{
 		OwnerId: req.OwnerId,
 		Name:    req.Name,
 		Image:   req.Image,
@@ -38,7 +36,8 @@ func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (e
 		return err
 	}
 
-	return Render(w, r, components.Wishlist(wl))
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 }
 
 func decodeWishlistCreateReq(req *WishlistCreateReq, r *http.Request) (err error) {
@@ -59,24 +58,6 @@ func decodeWishlistCreateReq(req *WishlistCreateReq, r *http.Request) (err error
 
 type WishlistReadByReq struct {
 	OwnerId int64 `form:"ownerId"`
-}
-
-func (s *Server) HandleWishlistReadBy(w http.ResponseWriter, r *http.Request) (err error) {
-	var req WishlistReadByReq
-	err = Decode(&req, r)
-	if err != nil {
-		return err
-	}
-
-	_, err = s.Wishlists.ReadBy(r.Context(), core.WishlistReadByParams{
-		OwnerId: req.OwnerId,
-	})
-	if err != nil {
-		return err
-	}
-
-	// TODO: Need a component for a collection of wishlists
-	return Render(w, r, templ.NopComponent)
 }
 
 type WishlistReadReq struct {

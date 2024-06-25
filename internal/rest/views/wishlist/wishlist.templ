@@ -2,17 +2,36 @@ package wishlist
 
 import (
 	"elf/internal/core"
+    "elf/internal/rest/views/layouts"
+    "fmt"
 )
 
 templ Wishlist(w core.Wishlist) {
-	<span class="flex flex-col items-center justify-stretch w-36 border border-gray-200">
-		<h2 class="text">{ w.Name }</h2>
-		if w.Image != "" {
-			<img src={ w.Image }/>
-		} else {
-			<img
-				src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthumbs.dreamstime.com%2Fb%2Fwish-list-decorative-type-lettering-design-53494547.jpg&f=1&nofb=1&ipt=c1ef9d347772fe9720cb3855c4e01f3a7cfdb0761cb0a3f136164b8bd804f68c&ipo=images"
-			/>
-		}
-	</span>
+@layouts.Base() {
+@layouts.Main() {
+    <div class="flex flex-col justify-center items-center mb-2">
+        <img src={ w.Image } alt="The wishlist's cover image." />
+        <h2 class="text-3xl truncate">{ w.Name }</h2>
+        <span class="flex justify-center items-center gap-x-1">
+            <a class="bg-red-500 text-white px-0.5 rounded">Delete</a>
+            <a class="bg-gray-500 text-white px-0.5 rounded">Edit</a>
+            <a class="bg-blue-500 text-white px-0.5 rounded">Share</a>
+        </span>
+    </div>
+    <ul class="w-full grid grid-cols-2 gap-2">
+        for _, p := range w.Products {
+        <a href={ templ.SafeURL(fmt.Sprintf("/product/%d", p.Id))} class="cursor-pointer">
+        <li class="flex flex-col items-center justify-stretch border min-h-24 border-gray-200">
+            <h2 class="text">{ p.Name }</h2>
+        </li>
+        </a>
+        }
+        <li class="flex flex-col items-center justify-stretch border border-gray-200 min-h-24">
+            <a href="/product/new">
+                <h2 class="">Add a Product</h2>
+            </a>
+        </li>
+    </ul>
+}
+}
 }

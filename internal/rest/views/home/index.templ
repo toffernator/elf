@@ -2,22 +2,23 @@ package home
 
 import "elf/internal/core"
 import "elf/internal/rest/views/layouts"
-import "elf/internal/rest/views/components"
+import "fmt"
 
 templ Index(ws []core.Wishlist) {
 @layouts.Base() {
 @layouts.Main() {
-<ul class="flex flex-wrap items-stretch justify-around w-full">
+<ul class="w-full grid grid-cols-2 gap-2">
     for _, w := range ws {
-    <li class="flex flex-col items-center justify-stretch w-5/12 border border-gray-200">
-        <h2 class="text">{ w.Name }</h2>
-        <img src={ w.Image } />
+    <a href={ templ.SafeURL(fmt.Sprintf("/wishlist/%d", w.Id))} class="cursor-pointer">
+    <li class="flex flex-col items-center justify-stretch border min-h-24 border-gray-200">
+            <h2 class="text">{ w.Name }</h2>
+            <img src={ w.Image } />
     </li>
+    </a>
     }
-    <li class="flex flex-col items-center justify-stretch w-5/12 border border-gray-200">
+    <li class="flex flex-col items-center justify-stretch border border-gray-200">
         <a href="/wishlist/new">
             <h2 class="">Add a Wishlist</h2>
-            @components.Icon("bi bi-plus-lg")
         </a>
     </li>
 </ul>
