@@ -97,7 +97,7 @@ func main() {
 		}(),
 
 		Wishlists: service.NewWishlistService(sqlite.NewWishlistStore(db)),
-		Products:  nil,
+		Products:  service.NewProductService(sqlite.NewProductStore(db)),
 		Users:     service.NewUserService(sqlite.NewUserStore(db)),
 	}
 

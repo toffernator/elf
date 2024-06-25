@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"elf/internal/core"
+	"log/slog"
 )
 
 type ProductStore interface {
-	Create(ctx context.Context, p core.ProductCreateParams) (core.Product, error)
+	Create(ctx context.Context, p core.ProductCreateParams) (int64, error)
 }
 
-// TODO: Mock with counterfeiter
 type ProductService struct {
 	store ProductStore
 }
@@ -18,16 +18,17 @@ func NewProductService(u ProductStore) *ProductService {
 	return &ProductService{store: u}
 }
 
-func (s *ProductService) Create(ctx context.Context, p core.ProductCreateParams) (prod core.Product, err error) {
+func (s *ProductService) Create(ctx context.Context, p core.ProductCreateParams) (id int64, err error) {
+	slog.Info("ProductService.Create is called", "p", p)
 	err = p.Validate()
 	if err != nil {
-		return prod, err
+		return
 	}
 
-	prod, err = s.store.Create(ctx, p)
+	id, err = s.store.Create(ctx, p)
 	if err != nil {
-		return prod, err
+		return
 	}
 
-	return prod, nil
+	return
 }

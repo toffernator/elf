@@ -20,21 +20,10 @@ func TestWishlistCreate(t *testing.T) {
 		params      core.WishlistCreateParams
 		expectedErr error
 	}{
-		"Create a wishlist without products": {
-			params: core.WishlistCreateParams{
-				OwnerId:  1,
-				Name:     "A wishlist without products",
-				Products: []core.ProductCreateParams{},
-			},
-		},
-		"Create a wishlist with products": {
+		"Create a wishlist": {
 			params: core.WishlistCreateParams{
 				OwnerId: 1,
-				Name:    "A wishlist with products",
-				Products: []core.ProductCreateParams{
-					{Name: "A product"},
-					{Name: "Another product"},
-				},
+				Name:    "A wishlist without products",
 			},
 		},
 		"Create a wishlist owned by a user that does not exist": {
@@ -63,15 +52,9 @@ func TestWishlistCreate(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
-			actualWithProducts, err := wishlists.Read(context.TODO(), actual.Id)
-			require.NoError(t, err)
 
 			require.Equal(t, tt.params.Name, actual.Name)
 			require.Equal(t, tt.params.OwnerId, actual.OwnerId)
-
-			// Assumes that if the length is correct the the products are created
-			// with the correct value.
-			require.Len(t, actualWithProducts.Products, len(tt.params.Products))
 		})
 	}
 }

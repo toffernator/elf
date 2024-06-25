@@ -27,7 +27,7 @@ templ Wishlist(w core.Wishlist) {
         </a>
         }
         <li class="flex flex-col items-center justify-stretch border border-gray-200 min-h-24">
-            <a href="/product/new">
+            <a href={ templ.SafeURL(fmt.Sprintf("/wishlist/%d/product/new", w.Id)) }>
                 <h2 class="">Add a Product</h2>
             </a>
         </li>

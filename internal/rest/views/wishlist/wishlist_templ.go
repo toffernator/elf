@@ -103,6 +103,15 @@ func Wishlist(w core.Wishlist) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				var templ_7745c5c3_Var8 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/wishlist/%d/product/new", w.Id))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var8)))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 8)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				if !templ_7745c5c3_IsBuffer {
 					_, templ_7745c5c3_Err = io.Copy(templ_7745c5c3_W, templ_7745c5c3_Buffer)
 				}

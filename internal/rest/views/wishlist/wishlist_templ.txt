@@ -4,4 +4,5 @@
 <a href=\"
 \" class=\"cursor-pointer\"><li class=\"flex flex-col items-center justify-stretch border min-h-24 border-gray-200\"><h2 class=\"text\">
 </h2></li></a>
-<li class=\"flex flex-col items-center justify-stretch border border-gray-200 min-h-24\"><a href=\"/product/new\"><h2 class=\"\">Add a Product</h2></a></li></ul>
+<li class=\"flex flex-col items-center justify-stretch border border-gray-200 min-h-24\"><a href=\"
+\"><h2 class=\"\">Add a Product</h2></a></li></ul>

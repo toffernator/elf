@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -53,13 +54,15 @@ func (c Currency) validate() *ValidationError {
 }
 
 type ProductCreateParams struct {
-	Name     string `validate:"required"`
-	Url      string `validate:"url"`
-	Price    int
-	Currency Currency
+	BelongsToId int64  `validate:"required"`
+	Name        string `validate:"required"`
+	Url         string `validate:"url"`
+	Price       int
+	Currency    Currency
 }
 
-func (p *ProductCreateParams) Validate() (err error) {
+func (p ProductCreateParams) Validate() (err error) {
+	slog.Info("ProductCreateParams.Validate is called", "p", p)
 	err = validate.Struct(&p)
 	errs, ok := err.(validator.ValidationErrors)
 	if !ok {

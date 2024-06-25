@@ -1,6 +1,6 @@
 // TODO: In general for this package: Use transactions
 // TODO: In general for this package: Don't SELECT * everywhere
-// TODO: In gneral for stores: Create a LoggingStore backed by the some other store
+// TODO: In gneral for stores: Create a LoggingStore backed by the some other store, make Creates only return the id
 package sqlite
 
 import (
@@ -20,16 +20,6 @@ type Wishlist struct {
 	OwnerId int64          `db:"owner_id"`
 	Name    string         `db:"name"`
 	Image   sql.NullString `db:"image"`
-}
-
-type Product struct {
-	Id    int64          `db:"id"`
-	Name  string         `db:"name"`
-	Url   sql.NullString `db:"url"`
-	Price sql.NullInt64  `db:"price"`
-	// TODO: Enforce enumeration of values
-	Currency    sql.NullInt16 `db:"currency"`
-	BelongsToId int64         `db:"belongs_to_id"`
 }
 
 type WishlistStore struct {
@@ -67,22 +57,7 @@ func (s *WishlistStore) Create(ctx context.Context, p core.WishlistCreateParams)
 		return core.Wishlist{}, err
 	}
 
-	for _, prod := range p.Products {
-		if err := s.addProduct(ctx, id, prod); err != nil {
-			// FIXME: Use a transaction because this might insert only some of
-			// the products.
-			return core.Wishlist{}, err
-		}
-	}
-
 	return core.Wishlist{Id: id, OwnerId: p.OwnerId, Name: p.Name, Products: []core.Product{}}, nil
-}
-
-func (s *WishlistStore) addProduct(ctx context.Context, id int64, p core.ProductCreateParams) (err error) {
-	slog.Info("WishlistStore.addProduct is called with", "id", id, "p", p)
-	_, err = s.db.ExecContext(ctx, `INSERT INTO product (name, url, price, currency, belongs_to_id)
-    VALUES($1, $2, $3, $4, $5)`, p.Name, p.Url, p.Price, p.Currency, id)
-	return err
 }
 
 // Read will populate the Products field of the read wishlist.

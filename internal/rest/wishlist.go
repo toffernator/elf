@@ -4,19 +4,20 @@ import (
 	"elf/internal/core"
 	components "elf/internal/rest/views/wishlist"
 	restcontext "elf/internal/rest_context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
 )
 
+func (s *Server) HandleWishlistNew(w http.ResponseWriter, r *http.Request) (err error) {
+	return Render(w, r, components.NewWishlist())
+}
+
 type WishlistCreateReq struct {
 	OwnerId int64
 	Name    string `form:"name"`
 	Image   string `form:"image"`
-}
-
-func (s *Server) HandleWishlistNew(w http.ResponseWriter, r *http.Request) (err error) {
-	return Render(w, r, components.NewWishlist())
 }
 
 func (s *Server) HandleWishlistCreate(w http.ResponseWriter, r *http.Request) (err error) {
@@ -121,4 +122,52 @@ func decodeUpdateWishlistRequest(req *UpdateWishlistRequest, r *http.Request) (e
 
 	req.Id = int64(id)
 	return nil
+}
+
+func (s *Server) HandleWishlistAddProduct(w http.ResponseWriter, r *http.Request) (err error) {
+	var req WishlistAddProductReq
+	err = decodeWishlistAddProductReq(&req, r)
+	if err != nil {
+		return err
+	}
+	slog.Info("HandleProductCreate is called", "args", req)
+
+	_, err = s.Products.Create(r.Context(), core.ProductCreateParams{
+		BelongsToId: req.BelongsToId,
+		Name:        req.Name,
+		Url:         req.Url,
+		Price:       req.Price,
+		// TODO: Parse the string to a currency integer (in decodeWishlistAddProductReq, with a helper function)
+		Currency: core.CurrencyEur,
+	})
+	if err != nil {
+		return err
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/wishlist/%d", req.BelongsToId), http.StatusSeeOther)
+	return
+}
+
+type WishlistAddProductReq struct {
+	BelongsToId int64
+	Name        string `form:"name"`
+	Url         string `form:"url"`
+	Price       int    `form:"price"`
+	Currency    string `form:"currency"`
+}
+
+func decodeWishlistAddProductReq(req *WishlistAddProductReq, r *http.Request) (err error) {
+	err = Decode(&req, r)
+	if err != nil {
+		return
+	}
+
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return &DecodingError{Field: "id", Value: idStr, Expectation: "be an integer"}
+	}
+
+	req.BelongsToId = int64(id)
+	return
 }

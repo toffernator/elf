@@ -11,8 +11,9 @@ import "io"
 import "bytes"
 
 import "elf/internal/rest/views/layouts"
+import "fmt"
 
-func NewProduct() templ.Component {
+func NewProduct(belongsToId int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -38,6 +39,15 @@ func NewProduct() templ.Component {
 					defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 				}
 				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var4 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/wishlist/%d/product", belongsToId))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var4)))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

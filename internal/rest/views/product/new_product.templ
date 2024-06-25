@@ -1,17 +1,19 @@
 package product 
 
 import "elf/internal/rest/views/layouts"
+import "fmt"
 
-templ NewProduct() {
+templ NewProduct(belongsToId int) {
 @layouts.Base() {
 @layouts.Main() {
-<form class="flex flex-col gap-y-1" action="/wishlist" method="post">
+<form class="flex flex-col gap-y-1" action={ templ.SafeURL(fmt.Sprintf("/wishlist/%d/product", belongsToId)) } method="post">
     <input name="name" type="text" placeholder="Name..." />
     <input name="price" type="number" placeholder="Price..." />
     <select>
         <option>EUR</option>
         <option>CHF</option>
     </select>
+    <input name="url" type="url" placeholder="Link..." />
     <span>
       <label for="image">Image:</label>
       <input class="border-0" name="image" type="file" placeholder="File..."/>

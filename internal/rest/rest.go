@@ -99,20 +99,18 @@ func (s *Server) RegisterRoutes() {
 	router.Route("/wishlist", func(r chi.Router) {
 		// TODO: Add EnsureAuthenticated middleware
 		r.Post("/", MakeHandler(s.HandleWishlistCreate))
-		r.Get("/{id}", MakeHandler(s.HandleWishlistRead))
-
 		r.Get("/new", MakeHandler(s.HandleWishlistNew))
-	})
 
-	router.Route("/product", func(r chi.Router) {
-		r.Get("/new", MakeHandler(s.HandleProductNew))
+		r.Get("/{id}", MakeHandler(s.HandleWishlistRead))
+		r.Get("/{id}/product/new", MakeHandler(s.HandleProductNew))
+		r.Post("/{id}/product", MakeHandler(s.HandleWishlistAddProduct))
 	})
 
 	s.Router = router
 }
 
 type ProductService interface {
-	Create(ctx context.Context, p core.ProductCreateParams) (core.Product, error)
+	Create(ctx context.Context, p core.ProductCreateParams) (int64, error)
 }
 
 type UserService interface {
@@ -125,6 +123,7 @@ type WishlistService interface {
 	Read(ctx context.Context, id int64) (core.Wishlist, error)
 	ReadBy(ctx context.Context, p core.WishlistReadByParams) ([]core.Wishlist, error)
 	Update(ctx context.Context, p core.WishlistUpdateParams) (core.Wishlist, error)
+	AddProduct(ctx context.Context, id int64, p core.ProductCreateParams) error
 }
 
 var decoder *form.Decoder = form.NewDecoder()
