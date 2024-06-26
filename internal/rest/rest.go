@@ -123,7 +123,7 @@ type WishlistService interface {
 	Read(ctx context.Context, id int64) (core.Wishlist, error)
 	ReadBy(ctx context.Context, p core.WishlistReadByParams) ([]core.Wishlist, error)
 	Update(ctx context.Context, p core.WishlistUpdateParams) (core.Wishlist, error)
-	AddProduct(ctx context.Context, id int64, p core.ProductCreateParams) error
+	AddProduct(ctx context.Context, wishlistId int64, userId int64, p core.ProductCreateParams) error
 }
 
 var decoder *form.Decoder = form.NewDecoder()

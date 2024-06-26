@@ -3,7 +3,8 @@ package sqlite_test
 import (
 	"context"
 	"elf/internal/core"
-	"elf/internal/sqlite"
+	"elf/internal/store"
+	"elf/internal/store/sqlite"
 	"math"
 	"testing"
 
@@ -56,7 +57,7 @@ func TestUserRead(t *testing.T) {
 		},
 		"User with an ID that does not exist": {
 			input:       math.MaxInt64,
-			expectedErr: sqlite.NewEntityDoesNotExistError("user", math.MaxInt64),
+			expectedErr: store.NewEntityDoesNotExistError("user", math.MaxInt64),
 		},
 	}
 	for name, tt := range tests {

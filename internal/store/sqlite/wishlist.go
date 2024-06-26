@@ -1,14 +1,14 @@
 // TODO: In general for this package: Use transactions
 // TODO: In general for this package: Don't SELECT * everywhere
-// TODO: In gneral for stores: Create a LoggingStore backed by the some other store, make Creates only return the id
+// TODO: In gneral for stores: Make Creates only return the id
 package sqlite
 
 import (
 	"context"
 	"database/sql"
 	"elf/internal/core"
+	"elf/internal/store"
 	"errors"
-	"log/slog"
 
 	"github.com/glebarez/go-sqlite"
 	"github.com/jmoiron/sqlx"
@@ -33,8 +33,6 @@ func NewWishlistStore(db *sqlx.DB) *WishlistStore {
 // Create will not populate the the products field of the newly created wishlist.
 // To read the products use the Read method following the Create method.
 func (s *WishlistStore) Create(ctx context.Context, p core.WishlistCreateParams) (core.Wishlist, error) {
-	slog.Info("WishlistStore.Create is called with", "p", p)
-
 	res, err := s.db.Exec(`INSERT INTO wishlist (name, owner_id)
         VALUES ($1, $2)`, p.Name, p.OwnerId)
 
@@ -45,7 +43,7 @@ func (s *WishlistStore) Create(ctx context.Context, p core.WishlistCreateParams)
 			case sqlite3.SQLITE_CONSTRAINT_FOREIGNKEY:
 				// Assumes that the wishlist table has exactly one foreign key:
 				// The id of the owner in the user table.
-				return core.Wishlist{}, NewEntityDoesNotExistError("user", p.OwnerId)
+				return core.Wishlist{}, store.NewEntityDoesNotExistError("user", p.OwnerId)
 			}
 		default:
 			return core.Wishlist{}, err
@@ -62,7 +60,6 @@ func (s *WishlistStore) Create(ctx context.Context, p core.WishlistCreateParams)
 
 // Read will populate the Products field of the read wishlist.
 func (s *WishlistStore) Read(ctx context.Context, id int64) (c core.Wishlist, err error) {
-	slog.Info("WishlistStore.Read is called with", "id", id)
 	var w Wishlist
 	err = s.db.GetContext(ctx, &w, "SELECT * FROM wishlist WHERE id = $1", id)
 	if err != nil {
@@ -118,10 +115,14 @@ func (s *WishlistStore) ReadBy(ctx context.Context, p core.WishlistReadByParams)
 	return
 }
 
+func (s *WishlistStore) IsOwnedBy(ctx context.Context, wishlistId int64, userId int64) (isOwnedBy bool, err error) {
+	err = s.db.GetContext(ctx, &isOwnedBy, `IF EXISTS(SELECT COUNT(1) FROM wishlist
+        WHERE id = $1 AND owner_id = $2)`, wishlistId, userId)
+	return
+}
+
 func (s *WishlistStore) readProducts(ctx context.Context, id int64) (ps []Product, err error) {
-	slog.Info("readProducts is called", "id", id)
 	err = s.db.SelectContext(ctx, &ps, `SELECT * FROM product WHERE belongs_to_id = $1`, id)
-	slog.Info("readProduct a result", "ps", ps)
 	return
 }
 

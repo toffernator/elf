@@ -38,6 +38,8 @@ func (w WishlistCreateParams) Validate() (err error) {
 
 type WishlistReadByParams struct {
 	OwnerId int64 `validate:"required"`
+	Take    int
+	Limit   int
 }
 
 func (w WishlistReadByParams) Validate() (err error) {

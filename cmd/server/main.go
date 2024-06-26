@@ -6,8 +6,8 @@ import (
 	"elf/internal/config"
 	"elf/internal/rest"
 	"elf/internal/service"
-	"elf/internal/sqlite"
-	"errors"
+	"elf/internal/store"
+	"elf/internal/store/sqlite"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -21,10 +21,9 @@ import (
 	_ "github.com/glebarez/go-sqlite"
 )
 
-func ConfigureLogger(cfg config.Config) {
-	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{}))
-	slog.SetDefault(logger)
-}
+var (
+	logger *slog.Logger = slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{}))
+)
 
 func ConfigureSecureCookie(cfg config.SecureCookie) *securecookie.SecureCookie {
 	// TODO: Look into key rotation: https://github.com/gorilla/securecookie?tab=readme-ov-file#key-rotation
@@ -37,9 +36,6 @@ func ConfigureSecureCookie(cfg config.SecureCookie) *securecookie.SecureCookie {
 
 func ConfigureSessionStore(cfg config.Session) (s sessions.Store, err error) {
 	s = sessions.NewCookieStore([]byte(cfg.Secret))
-	if s == nil {
-		return s, errors.New("Session store configuration error")
-	}
 	return s, nil
 }
 
@@ -70,8 +66,6 @@ func main() {
 	}
 	cfg := config.MustLoadConfig()
 
-	ConfigureLogger(*cfg)
-
 	db, err := ConfigureDb(cfg.Db)
 	if err != nil {
 		panic(err)
@@ -96,9 +90,21 @@ func main() {
 			return a
 		}(),
 
-		Wishlists: service.NewWishlistService(sqlite.NewWishlistStore(db)),
-		Products:  service.NewProductService(sqlite.NewProductStore(db)),
-		Users:     service.NewUserService(sqlite.NewUserStore(db)),
+		Users: func() rest.UserService {
+			sqliteStore := sqlite.NewUserStore(db)
+			loggedStore := store.NewLoggedUserStore(sqliteStore, logger)
+			return service.NewUserService(loggedStore)
+		}(),
+		Wishlists: func() rest.WishlistService {
+			sqliteStore := sqlite.NewWishlistStore(db)
+			loggedStore := store.NewLoggedWishlistStore(sqliteStore, logger)
+			return service.NewWishlistService(loggedStore)
+		}(),
+		Products: func() rest.ProductService {
+			sqliteStore := sqlite.NewProductStore(db)
+			loggedStore := store.NewLoggedProductStore(sqliteStore, logger)
+			return service.NewProductService(loggedStore)
+		}(),
 	}
 
 	s.RegisterRoutes()

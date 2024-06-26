@@ -3,7 +3,7 @@ package sqlite_test
 import (
 	"context"
 	"elf/internal/core"
-	"elf/internal/sqlite"
+	"elf/internal/store/sqlite"
 	"testing"
 
 	"github.com/stretchr/testify/require"

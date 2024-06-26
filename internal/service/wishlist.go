@@ -3,12 +3,15 @@ package service
 import (
 	"context"
 	"elf/internal/core"
+
+	"errors"
 )
 
 type WishlistStore interface {
 	Create(ctx context.Context, p core.WishlistCreateParams) (core.Wishlist, error)
 	Read(ctx context.Context, id int64) (core.Wishlist, error)
 	ReadBy(ctx context.Context, p core.WishlistReadByParams) ([]core.Wishlist, error)
+	IsOwnedBy(ctx context.Context, wishlistId int64, userId int64) (bool, error)
 	Update(ctx context.Context, p core.WishlistUpdateParams) (core.Wishlist, error)
 }
 
@@ -72,13 +75,21 @@ func (w *WishlistService) Update(ctx context.Context, p core.WishlistUpdateParam
 	return wl, nil
 }
 
-func (w *WishlistService) AddProduct(ctx context.Context, id int64, p core.ProductCreateParams) (err error) {
+func (w *WishlistService) AddProduct(ctx context.Context, wishlistId int64, userId int64, p core.ProductCreateParams) (err error) {
 	err = p.Validate()
 	if err != nil {
 		return err
 	}
 
-	// TODO: Check that the user submitting the request is owns the wishlist
+	doesOwnWishlist, err := w.wishlistStore.IsOwnedBy(ctx, wishlistId, userId)
+	if err != nil {
+		return err
+	}
+	if !doesOwnWishlist {
+		// TODO: Better Unauthorized error
+		return errors.New("You do not own this wishlist")
+	}
+
 	_, err = w.productStore.Create(ctx, p)
 	if err != nil {
 		return err

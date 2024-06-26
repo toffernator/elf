@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"elf/internal/core"
-	"elf/internal/sqlite"
+	"elf/internal/store"
+	"elf/internal/store/sqlite"
 	"math"
 	"testing"
 
@@ -31,7 +32,7 @@ func TestWishlistCreate(t *testing.T) {
 				OwnerId: math.MaxInt64,
 				Name:    "A wishlist owned by a user that does not exist",
 			},
-			expectedErr: sqlite.NewEntityDoesNotExistError("user", math.MaxInt64),
+			expectedErr: store.NewEntityDoesNotExistError("user", math.MaxInt64),
 		},
 	}
 
