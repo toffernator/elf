@@ -20,11 +20,11 @@ func setupSqlite(name string) (db *sqlx.DB) {
 	connectionString := fmt.Sprintf("file:%s?mode=memory&cache=shared&_pragma=foreign_keys=ON", name)
 	db = sqlx.MustConnect("sqlite", connectionString)
 
-	err := goose.Up(db.DB, "../../db/migrations")
+	err := goose.Up(db.DB, "../../../db/migrations")
 	if err != nil {
 		panic(fmt.Errorf("Migrating the database failed with: %w", err))
 	}
-	err = goose.Up(db.DB, "../../db/seeds")
+	err = goose.Up(db.DB, "../../../db/seeds")
 	if err != nil {
 		panic(fmt.Errorf("Seeding the database failed with: %w", err))
 	}
