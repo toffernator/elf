@@ -6,14 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type Error struct {
-	msg any
-}
-
-func (err *Error) Error() string {
-	return fmt.Sprintf("core.Error: %v", err.msg)
-}
-
 type ValidationError struct {
 	Namespace   string
 	Value       any
@@ -51,4 +43,13 @@ func (err *ValidationErrors) Error() string {
 
 func (err *ValidationErrors) Append(e ValidationError) {
 	err.errs = append(err.errs, e)
+}
+
+type UnauthorizedError struct {
+	Resource string
+	Action   string
+}
+
+func (err UnauthorizedError) Error() string {
+	return fmt.Sprintf("'core.UnauthorizedError: to '%s' on '%s'", err.Action, err.Resource)
 }

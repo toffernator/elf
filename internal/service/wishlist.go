@@ -3,8 +3,6 @@ package service
 import (
 	"context"
 	"elf/internal/core"
-
-	"errors"
 )
 
 type WishlistStore interface {
@@ -20,8 +18,8 @@ type WishlistService struct {
 	productStore  ProductStore
 }
 
-func NewWishlistService(s WishlistStore) *WishlistService {
-	return &WishlistService{wishlistStore: s}
+func NewWishlistService(wishlistStore WishlistStore, productStore ProductStore) *WishlistService {
+	return &WishlistService{wishlistStore, productStore}
 }
 
 func (w *WishlistService) Create(ctx context.Context, p core.WishlistCreateParams) (wl core.Wishlist, err error) {
@@ -86,8 +84,10 @@ func (w *WishlistService) AddProduct(ctx context.Context, wishlistId int64, user
 		return err
 	}
 	if !doesOwnWishlist {
-		// TODO: Better Unauthorized error
-		return errors.New("You do not own this wishlist")
+		return core.UnauthorizedError{
+			Resource: "wishlist",
+			Action:   "add a product",
+		}
 	}
 
 	_, err = w.productStore.Create(ctx, p)

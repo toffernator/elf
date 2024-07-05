@@ -71,6 +71,15 @@ func main() {
 		panic(err)
 	}
 
+	userSqliteStore := sqlite.NewUserStore(db)
+	userLoggedStore := store.NewLoggedUserStore(userSqliteStore, logger)
+
+	wishlistSqliteStore := sqlite.NewWishlistStore(db)
+	wishlistLoggedStore := store.NewLoggedWishlistStore(wishlistSqliteStore, logger)
+
+	productSqliteStore := sqlite.NewProductStore(db)
+	productLoggedStore := store.NewLoggedProductStore(productSqliteStore, logger)
+
 	s := rest.Server{
 		Config: cfg,
 
@@ -90,21 +99,9 @@ func main() {
 			return a
 		}(),
 
-		Users: func() rest.UserService {
-			sqliteStore := sqlite.NewUserStore(db)
-			loggedStore := store.NewLoggedUserStore(sqliteStore, logger)
-			return service.NewUserService(loggedStore)
-		}(),
-		Wishlists: func() rest.WishlistService {
-			sqliteStore := sqlite.NewWishlistStore(db)
-			loggedStore := store.NewLoggedWishlistStore(sqliteStore, logger)
-			return service.NewWishlistService(loggedStore)
-		}(),
-		Products: func() rest.ProductService {
-			sqliteStore := sqlite.NewProductStore(db)
-			loggedStore := store.NewLoggedProductStore(sqliteStore, logger)
-			return service.NewProductService(loggedStore)
-		}(),
+		Users:     service.NewUserService(userLoggedStore),
+		Wishlists: service.NewWishlistService(wishlistLoggedStore, productLoggedStore),
+		Products:  service.NewProductService(productLoggedStore),
 	}
 
 	s.RegisterRoutes()

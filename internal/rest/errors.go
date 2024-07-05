@@ -13,7 +13,7 @@ type Error struct {
 }
 
 func (err *Error) Error() string {
-	return fmt.Sprintf("core.Error: %v", err.Reason)
+	return fmt.Sprintf("rest.Error: %v", err.Reason)
 }
 
 type DecodingError struct {
